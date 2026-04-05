@@ -44,10 +44,56 @@ def main(ctx: click.Context, verbose: bool, quiet: bool, output_json: bool) -> N
 
 
 @main.command()
+@click.option("--verbose", "-v", is_flag=True, default=False, help="Debug logging.")
 @click.pass_context
-def doctor(ctx: click.Context) -> None:
+def doctor(ctx: click.Context, verbose: bool) -> None:
     """Check config, auth, and connectivity. Exits 0 if all good."""
-    result = SyncResult(status=SyncStatus.ERROR, message="doctor not yet implemented")
+    quiet = (ctx.obj or {}).get("quiet", False)
+    _setup_logging(verbose or (ctx.obj or {}).get("verbose", False), quiet)
+
+    from monarch_cli_sync.config import CONFIG_FILE, CONFIG_DIR
+    from monarch_cli_sync.monarch.session import get_session_file
+    from monarch_cli_sync.amazon.session import get_cookie_file
+
+    warnings: list[str] = []
+    errors: list[str] = []
+
+    # 1. Config file
+    if CONFIG_FILE.exists():
+        if not quiet:
+            console.print(f"[green]✓[/green] Config file found: {CONFIG_FILE}")
+    else:
+        warnings.append(f"Config file not found at {CONFIG_FILE}; using env vars / defaults.")
+        if not quiet:
+            console.print(f"[yellow]![/yellow] Config file not found: {CONFIG_FILE}")
+
+    # 2. Monarch session
+    monarch_session = get_session_file()
+    if monarch_session.exists():
+        if not quiet:
+            console.print(f"[green]✓[/green] Monarch session found: {monarch_session}")
+    else:
+        warnings.append(f"Monarch session not found at {monarch_session}. Run 'auth monarch'.")
+        if not quiet:
+            console.print(f"[yellow]![/yellow] Monarch session not found: {monarch_session}")
+
+    # 3. Amazon cookies
+    amazon_cookies = get_cookie_file()
+    if amazon_cookies.exists():
+        if not quiet:
+            console.print(f"[green]✓[/green] Amazon cookies found: {amazon_cookies}")
+    else:
+        warnings.append(f"Amazon cookies not found at {amazon_cookies}. Run 'auth amazon'.")
+        if not quiet:
+            console.print(f"[yellow]![/yellow] Amazon cookies not found: {amazon_cookies}")
+
+    if errors:
+        result = SyncResult(status=SyncStatus.ERROR, errors=errors, message="doctor found errors")
+    elif warnings:
+        result = SyncResult(status=SyncStatus.PARTIAL, warnings=warnings, message="doctor found warnings")
+    else:
+        result = SyncResult(status=SyncStatus.OK, message="all checks passed")
+
     click.echo(result.summary_line())
     sys.exit(result.exit_code)
 
@@ -58,12 +104,31 @@ def auth() -> None:
 
 
 @auth.command("amazon")
+@click.option("--verbose", "-v", is_flag=True, default=False, help="Debug logging.")
 @click.pass_context
-def auth_amazon(ctx: click.Context) -> None:
+def auth_amazon(ctx: click.Context, verbose: bool) -> None:
     """Interactive Amazon login — persists cookies for future headless runs."""
-    result = SyncResult(status=SyncStatus.ERROR, message="auth amazon not yet implemented")
+    quiet = (ctx.obj or {}).get("quiet", False)
+    _setup_logging(verbose or (ctx.obj or {}).get("verbose", False), quiet)
+
+    config = load_config()
+
+    try:
+        from monarch_cli_sync.amazon.session import load_or_login as amazon_load_or_login
+        amazon_load_or_login(config, force=True)
+        if not quiet:
+            console.print("[green]Amazon cookies saved successfully.[/green]")
+    except SystemExit:
+        raise
+    except Exception as exc:
+        err_console.print(f"[red]Error:[/red] {exc}")
+        result = SyncResult(status=SyncStatus.ERROR, message=str(exc))
+        click.echo(result.summary_line())
+        sys.exit(result.exit_code)
+
+    result = SyncResult(status=SyncStatus.OK, message="amazon auth complete")
     click.echo(result.summary_line())
-    sys.exit(result.exit_code)
+    sys.exit(0)
 
 
 @auth.command("monarch")
@@ -137,14 +202,30 @@ def sync(
         end_date = date.today()
         start_date = end_date - timedelta(days=num_days)
 
-    async def _run() -> list:
+    async def _run_monarch() -> list:
         from monarch_cli_sync.monarch.session import load_or_login
         from monarch_cli_sync.monarch.transactions import fetch_amazon_transactions
         mm = await load_or_login(config)
         return await fetch_amazon_transactions(mm, start_date, end_date)
 
+    def _run_amazon() -> list:
+        from monarch_cli_sync.amazon.session import load_or_login as amazon_load_or_login
+        from monarch_cli_sync.amazon.orders import fetch_orders
+        session = amazon_load_or_login(config)
+        return fetch_orders(session, start_date=start_date, end_date=end_date)
+
     try:
-        transactions = asyncio.run(_run())
+        transactions = asyncio.run(_run_monarch())
+    except SystemExit:
+        raise
+    except Exception as exc:
+        err_console.print(f"[red]Error:[/red] {exc}")
+        result = SyncResult(status=SyncStatus.ERROR, message=str(exc))
+        click.echo(result.summary_line())
+        sys.exit(result.exit_code)
+
+    try:
+        orders = _run_amazon()
     except SystemExit:
         raise
     except Exception as exc:
@@ -154,15 +235,40 @@ def sync(
         sys.exit(result.exit_code)
 
     if not quiet:
+        _print_orders_table(orders, start_date, end_date)
         _print_transactions_table(transactions, start_date, end_date)
 
     result = SyncResult(
         status=SyncStatus.OK,
+        orders_inspected=len(orders),
         transactions_fetched=len(transactions),
         message="dry-run complete",
     )
     click.echo(result.summary_line())
     sys.exit(0)
+
+
+def _print_orders_table(orders: list, start_date: date, end_date: date) -> None:
+    from monarch_cli_sync.amazon.orders import AmazonOrder
+
+    table = Table(title=f"Amazon orders  {start_date} → {end_date}")
+    table.add_column("Date", style="cyan", no_wrap=True)
+    table.add_column("Order #", style="white")
+    table.add_column("Amount", justify="right", style="green")
+    table.add_column("Items", style="dim")
+
+    for order in orders:
+        table.add_row(
+            str(order.date),
+            order.order_number,
+            f"${order.amount:.2f}",
+            order.items_desc[:60],
+        )
+
+    if orders:
+        console.print(table)
+    else:
+        console.print(f"[yellow]No Amazon orders found between {start_date} and {end_date}.[/yellow]")
 
 
 def _print_transactions_table(transactions: list, start_date: date, end_date: date) -> None:

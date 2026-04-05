@@ -63,8 +63,13 @@ def test_sync_dry_run_prints_table(runner):
     async def fake_fetch(mm, start_date, end_date, **kwargs):
         return transactions
 
+    def fake_amazon_login(config, **kwargs):
+        return MagicMock()
+
     with patch("monarch_cli_sync.monarch.session.load_or_login", fake_load_or_login), \
-         patch("monarch_cli_sync.monarch.transactions.fetch_amazon_transactions", fake_fetch):
+         patch("monarch_cli_sync.monarch.transactions.fetch_amazon_transactions", fake_fetch), \
+         patch("monarch_cli_sync.amazon.session.load_or_login", fake_amazon_login), \
+         patch("monarch_cli_sync.amazon.orders.fetch_orders", return_value=[]):
         result = runner.invoke(main, ["sync", "--dry-run"])
 
     assert result.exit_code == 0
@@ -78,8 +83,13 @@ def test_sync_dry_run_empty_transactions(runner):
     async def fake_fetch(mm, start_date, end_date, **kwargs):
         return []
 
+    def fake_amazon_login(config, **kwargs):
+        return MagicMock()
+
     with patch("monarch_cli_sync.monarch.session.load_or_login", fake_load_or_login), \
-         patch("monarch_cli_sync.monarch.transactions.fetch_amazon_transactions", fake_fetch):
+         patch("monarch_cli_sync.monarch.transactions.fetch_amazon_transactions", fake_fetch), \
+         patch("monarch_cli_sync.amazon.session.load_or_login", fake_amazon_login), \
+         patch("monarch_cli_sync.amazon.orders.fetch_orders", return_value=[]):
         result = runner.invoke(main, ["sync", "--dry-run"])
 
     assert result.exit_code == 0
