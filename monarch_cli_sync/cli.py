@@ -2,15 +2,31 @@
 
 from __future__ import annotations
 
+import asyncio
+import logging
 import sys
+from datetime import date, timedelta
+
 import click
 from rich.console import Console
+from rich.table import Table
 
 from monarch_cli_sync import __version__
+from monarch_cli_sync.config import load_config
 from monarch_cli_sync.status import SyncResult, SyncStatus
 
 console = Console()
 err_console = Console(stderr=True)
+
+
+def _setup_logging(verbose: bool, quiet: bool) -> None:
+    level = logging.DEBUG if verbose else (logging.ERROR if quiet else logging.INFO)
+    logging.basicConfig(
+        stream=sys.stderr,
+        level=level,
+        format="[%(asctime)s] [%(levelname)s] %(message)s",
+        datefmt="%Y-%m-%dT%H:%M:%S",
+    )
 
 
 @click.group()
@@ -51,12 +67,34 @@ def auth_amazon(ctx: click.Context) -> None:
 
 
 @auth.command("monarch")
+@click.option("--verbose", "-v", is_flag=True, default=False, help="Debug logging.")
 @click.pass_context
-def auth_monarch(ctx: click.Context) -> None:
+def auth_monarch(ctx: click.Context, verbose: bool) -> None:
     """Interactive Monarch login — persists session for future headless runs."""
-    result = SyncResult(status=SyncStatus.ERROR, message="auth monarch not yet implemented")
+    quiet = (ctx.obj or {}).get("quiet", False)
+    _setup_logging(verbose or (ctx.obj or {}).get("verbose", False), quiet)
+
+    config = load_config()
+
+    async def _run() -> None:
+        from monarch_cli_sync.monarch.session import load_or_login
+        mm = await load_or_login(config, force=True)
+        if not quiet:
+            console.print("[green]Monarch session saved successfully.[/green]")
+
+    try:
+        asyncio.run(_run())
+    except SystemExit:
+        raise
+    except Exception as exc:
+        err_console.print(f"[red]Error:[/red] {exc}")
+        result = SyncResult(status=SyncStatus.ERROR, message=str(exc))
+        click.echo(result.summary_line())
+        sys.exit(result.exit_code)
+
+    result = SyncResult(status=SyncStatus.OK, message="monarch auth complete")
     click.echo(result.summary_line())
-    sys.exit(result.exit_code)
+    sys.exit(0)
 
 
 @main.command()
@@ -79,9 +117,79 @@ def sync(
     quiet: bool,
 ) -> None:
     """Run full sync (Amazon → Monarch)."""
-    result = SyncResult(status=SyncStatus.ERROR, message="sync not yet implemented")
+    verbose = verbose or (ctx.obj or {}).get("verbose", False)
+    quiet = quiet or (ctx.obj or {}).get("quiet", False)
+    _setup_logging(verbose, quiet)
+
+    if not dry_run:
+        result = SyncResult(status=SyncStatus.ERROR, message="sync without --dry-run not yet implemented")
+        click.echo(result.summary_line())
+        sys.exit(result.exit_code)
+
+    config = load_config()
+
+    # Determine date range
+    if year is not None:
+        start_date = date(year, 1, 1)
+        end_date = date(year, 12, 31)
+    else:
+        num_days = days if days is not None else config.sync.default_days
+        end_date = date.today()
+        start_date = end_date - timedelta(days=num_days)
+
+    async def _run() -> list:
+        from monarch_cli_sync.monarch.session import load_or_login
+        from monarch_cli_sync.monarch.transactions import fetch_amazon_transactions
+        mm = await load_or_login(config)
+        return await fetch_amazon_transactions(mm, start_date, end_date)
+
+    try:
+        transactions = asyncio.run(_run())
+    except SystemExit:
+        raise
+    except Exception as exc:
+        err_console.print(f"[red]Error:[/red] {exc}")
+        result = SyncResult(status=SyncStatus.ERROR, message=str(exc))
+        click.echo(result.summary_line())
+        sys.exit(result.exit_code)
+
+    if not quiet:
+        _print_transactions_table(transactions, start_date, end_date)
+
+    result = SyncResult(
+        status=SyncStatus.OK,
+        transactions_fetched=len(transactions),
+        message="dry-run complete",
+    )
     click.echo(result.summary_line())
-    sys.exit(result.exit_code)
+    sys.exit(0)
+
+
+def _print_transactions_table(transactions: list, start_date: date, end_date: date) -> None:
+    from monarch_cli_sync.monarch.transactions import MonarchTransaction
+
+    table = Table(title=f"Monarch 'Amazon' transactions  {start_date} → {end_date}")
+    table.add_column("Date", style="cyan", no_wrap=True)
+    table.add_column("Merchant", style="white")
+    table.add_column("Account", style="dim")
+    table.add_column("Amount", justify="right", style="green")
+    table.add_column("Notes", style="dim")
+    table.add_column("Pending", style="yellow")
+
+    for tx in transactions:
+        table.add_row(
+            str(tx.date),
+            tx.merchant_name,
+            tx.account_name,
+            f"${abs(tx.amount):.2f}",
+            tx.notes[:40] if tx.notes else "",
+            "yes" if tx.pending else "",
+        )
+
+    if transactions:
+        console.print(table)
+    else:
+        console.print(f"[yellow]No Amazon transactions found between {start_date} and {end_date}.[/yellow]")
 
 
 @main.command()
