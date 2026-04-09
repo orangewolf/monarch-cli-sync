@@ -2,6 +2,72 @@
 
 A Python command-line tool to sync Amazon order history into Monarch Money without relying on a browser extension.
 
+## Setup
+
+### 1. Prerequisites
+
+- Python 3.11+
+  - Recommended: Python 3.11–3.13
+  - Note: fresh installs currently fail on Python 3.14 because an upstream dependency chain (`amazon-orders` → `Pillow 9.5.0`) does not build cleanly there yet
+- A Monarch Money account
+
+### 2. Install
+
+```bash
+git clone https://github.com/orangewolf/monarch-cli-sync.git
+cd monarch-cli-sync
+python3.13 -m venv .venv
+source .venv/bin/activate
+pip install -e .
+```
+
+If `python3.13` is not installed, use another supported interpreter such as `python3.12` or `python3.11`.
+
+### 3. Configure credentials
+
+Copy the example env file and fill in your Monarch credentials:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env`:
+
+```dotenv
+MONARCH_EMAIL=you@example.com
+MONARCH_PASSWORD=yourpassword
+MONARCH_MFA_SECRET_KEY=BASE32SECRETFROMMONARCH
+```
+
+`MONARCH_MFA_SECRET_KEY` is the base32 TOTP secret shown when you set up 2FA in Monarch (the string you'd normally scan as a QR code). Leave it empty if your account does not use MFA.
+
+Alternatively, place these values in `~/.config/monarch-cli-sync/config.toml`:
+
+```toml
+[monarch]
+email = "you@example.com"
+password = "yourpassword"
+mfa_secret_key = "BASE32SECRETFROMMONARCH"
+```
+
+### 4. Authenticate with Monarch
+
+```bash
+monarch-cli-sync auth monarch
+```
+
+This performs an interactive Monarch login and persists a session token for later runs.
+
+### 5. Test with a dry run
+
+```bash
+monarch-cli-sync sync --dry-run
+```
+
+Current behavior: this fetches recent Monarch transactions whose merchant is Amazon and prints them in a table. It does not write any changes yet.
+
+---
+
 ## Why this exists
 
 There is an existing project, [`alex-peck/monarch-amazon-sync`](https://github.com/alex-peck/monarch-amazon-sync), plus Monarch’s own Chrome extension approach, that help match Amazon orders to Monarch transactions.
@@ -77,18 +143,21 @@ Why Python:
 - this lowers implementation risk for the hardest parts of the project
 - it gives us the best chance of getting to a reliable cron-friendly tool quickly
 
-Ruby is still a reasonable language in general, but for this specific project the ecosystem advantage is clearly on the Python side, especially for Amazon consumer-order access.
+## Current CLI shape
 
-## Early shape of the CLI
+Available today:
 
-Possible command structure:
+```bash
+monarch-cli-sync auth monarch
+monarch-cli-sync sync --dry-run
+```
+
+Scaffolded but not implemented yet:
 
 ```bash
 monarch-cli-sync doctor
 monarch-cli-sync auth amazon
-monarch-cli-sync auth monarch
 monarch-cli-sync sync
-monarch-cli-sync sync --json
 monarch-cli-sync status
 ```
 
@@ -139,12 +208,24 @@ A future version should expose clear states such as:
 
 ## Repository status
 
-This repository is currently just the project scaffold.
-The next step is technical research into:
+This repository is past the initial scaffold stage, but it is still early.
 
-- `alex-peck/monarch-amazon-sync`
-- Monarch’s Chrome extension behavior
-- whether a reliable non-extension CLI flow is practical
+Implemented now:
+
+- packaging / editable install
+- config loading from `.env` and `~/.config/monarch-cli-sync/config.toml`
+- `auth monarch`
+- `sync --dry-run` for listing matching Monarch-side Amazon transactions
+- test suite coverage for the current CLI/config/session behavior
+
+Not implemented yet:
+
+- `auth amazon`
+- full Amazon order ingestion
+- matching engine
+- write path back to Monarch
+- `doctor`
+- `status`
 
 ## License
 
