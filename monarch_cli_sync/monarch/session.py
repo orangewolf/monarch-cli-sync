@@ -8,6 +8,12 @@ import sys
 from pathlib import Path
 
 from monarchmoney import MonarchMoney, RequireMFAException, LoginFailedException
+from monarchmoney.monarchmoney import MonarchMoneyEndpoints
+
+# Upstream library (v0.1.15) still uses the old domain. Monarch rebranded and
+# moved their API to api.monarch.com — patch it until a new release ships.
+# Track: https://github.com/hammem/monarchmoney/issues/184
+MonarchMoneyEndpoints.BASE_URL = "https://api.monarch.com"
 
 from monarch_cli_sync.config import AppConfig, CONFIG_DIR
 
@@ -36,7 +42,7 @@ async def load_or_login(
 
     if not force and path.exists():
         try:
-            await mm.load_session()
+            mm.load_session()
             logger.debug("Loaded existing Monarch session from %s", path)
             return mm
         except Exception as exc:
