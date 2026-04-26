@@ -41,3 +41,17 @@ def test_doctor_runs_and_exits_nonzero_when_files_missing(runner):
 def test_status_exits_with_error_when_not_implemented(runner):
     result = runner.invoke(main, ["status"], catch_exceptions=False)
     assert result.exit_code == 4
+
+
+def test_doctor_reports_captcha_solver_when_configured(runner, monkeypatch):
+    monkeypatch.setenv("AMAZON_CAPTCHA_SOLVER", "2captcha")
+    monkeypatch.setenv("AMAZON_CAPTCHA_API_KEY", "k")
+    result = runner.invoke(main, ["doctor"], catch_exceptions=False)
+    assert "Amazon WAF auto-solve: 2captcha" in result.output
+
+
+def test_doctor_reports_captcha_solver_disabled(runner, monkeypatch):
+    monkeypatch.setenv("AMAZON_CAPTCHA_SOLVER", "")
+    monkeypatch.setenv("AMAZON_CAPTCHA_API_KEY", "")
+    result = runner.invoke(main, ["doctor"], catch_exceptions=False)
+    assert "Amazon WAF auto-solve: disabled" in result.output

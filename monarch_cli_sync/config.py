@@ -21,6 +21,8 @@ class AmazonConfig(BaseModel):
     password: str = ""
     otp_secret_key: str = ""
     request_delay_seconds: float = 1.0
+    captcha_solver: str = ""
+    captcha_api_key: str = ""
 
     @model_validator(mode="before")
     @classmethod
@@ -28,6 +30,8 @@ class AmazonConfig(BaseModel):
         values.setdefault("username", os.environ.get("AMAZON_USERNAME", ""))
         values.setdefault("password", os.environ.get("AMAZON_PASSWORD", ""))
         values.setdefault("otp_secret_key", os.environ.get("AMAZON_OTP_SECRET_KEY", ""))
+        values.setdefault("captcha_solver", os.environ.get("AMAZON_CAPTCHA_SOLVER", ""))
+        values.setdefault("captcha_api_key", os.environ.get("AMAZON_CAPTCHA_API_KEY", ""))
         return values
 
 

@@ -12,7 +12,8 @@ dependencies = [
     "rich>=13.0",
     "pydantic>=2.0",
     "python-dotenv>=1.0",
-    "amazon-orders",
+    "amazon-orders @ git+https://github.com/blytheaw/amazon-orders.git@2ce5e4920cf5e14eba0aa594aaf979e1243ddbd2",
+    "2captcha-python>=1.0",
     "monarchmoney>=0.1",
     "gql<4.0",  # monarchmoney 0.1.15 is not compatible with gql 4.0
 ]
@@ -38,6 +39,11 @@ testpaths = ["tests"]
 markers = [
     "e2e: real API tests recorded/replayed with VCR cassettes",
 ]
+
+[tool.hatch.metadata]
+# Required because amazon-orders is pinned to a fork commit via git URL
+# until alexdlaird/amazon-orders#72 ships in a tagged release.
+allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["monarch_cli_sync"]

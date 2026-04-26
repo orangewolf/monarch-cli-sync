@@ -77,6 +77,23 @@ Performs an interactive Amazon login and persists cookies for later headless run
 
 > **Note:** Amazon OTP auto-login (equivalent to `MONARCH_MFA_SECRET_KEY` for Monarch) is not yet supported. If your account requires OTP on every login, you will need to re-run `auth amazon` to refresh cookies when they expire.
 
+#### Optional: auto-solve WAF CAPTCHAs
+
+Amazon sometimes presents a JavaScript-based AWS WAF CAPTCHA during login. By default, when this happens `auth amazon` errors out and you have to retry from a real browser. To opt in to automatic solving via [2captcha](https://2captcha.com/), set:
+
+```dotenv
+AMAZON_CAPTCHA_SOLVER=2captcha
+AMAZON_CAPTCHA_API_KEY=your_2captcha_api_key
+```
+
+(Or the equivalent `[amazon] captcha_solver` / `captcha_api_key` keys in `config.toml`.)
+
+When the solver is configured, `auth amazon` and the silent re-auth path used by `sync` will both forward the puzzle to 2captcha (~10–60s per solve, roughly $3 per 1000 solves at current pricing). Leave the env vars empty and behavior is identical to today.
+
+This currently relies on a pinned fork commit of [`amazon-orders`](https://github.com/blytheaw/amazon-orders/tree/feat/2captcha-support-amazon-waf) ([upstream PR alexdlaird/amazon-orders#72](https://github.com/alexdlaird/amazon-orders/pull/72)). Once that PR ships in a tagged release, this project will switch back to the PyPI release.
+
+`monarch-cli-sync doctor` reports the current solver status (`Amazon WAF auto-solve: 2captcha` or `disabled`).
+
 ### 6. Test with a dry run
 
 ```bash

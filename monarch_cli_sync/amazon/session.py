@@ -6,6 +6,7 @@ import logging
 import sys
 from pathlib import Path
 
+from amazonorders.conf import AmazonOrdersConfig
 from amazonorders.exception import AmazonOrdersAuthError
 from amazonorders.session import AmazonSession
 
@@ -43,11 +44,20 @@ def load_or_login(
 
     path.parent.mkdir(parents=True, exist_ok=True)
 
+    amazon_config = AmazonOrdersConfig(data={"cookie_jar_path": str(path)})
+
+    # Empty strings → None so we don't trip the upstream guard that fires when
+    # captcha_solver is set without captcha_api_key.
+    captcha_solver = config.amazon.captcha_solver or None
+    captcha_api_key = config.amazon.captcha_api_key or None
+
     if not force and path.exists():
         session = SessionCls(
             username=config.amazon.username or "",
             password=config.amazon.password or "",
-            cookie_jar_path=str(path),
+            config=amazon_config,
+            captcha_solver=captcha_solver,
+            captcha_api_key=captcha_api_key,
         )
         # Cookies loaded by constructor; mark authenticated so orders API works.
         session.is_authenticated = True
@@ -69,7 +79,9 @@ def load_or_login(
     session = SessionCls(
         username=config.amazon.username,
         password=config.amazon.password,
-        cookie_jar_path=str(path),
+        config=amazon_config,
+        captcha_solver=captcha_solver,
+        captcha_api_key=captcha_api_key,
     )
 
     try:

@@ -35,3 +35,34 @@ def test_env_vars_override(monkeypatch, tmp_path):
     cfg = load_config(tmp_path / "nonexistent.toml")
     assert cfg.amazon.username == "env_user"
     assert cfg.monarch.email == "monarch@example.com"
+
+
+def test_amazon_config_reads_captcha_env_vars(monkeypatch, tmp_path):
+    """AMAZON_CAPTCHA_SOLVER and AMAZON_CAPTCHA_API_KEY populate AmazonConfig."""
+    monkeypatch.setenv("AMAZON_CAPTCHA_SOLVER", "2captcha")
+    monkeypatch.setenv("AMAZON_CAPTCHA_API_KEY", "abc123")
+    cfg = AppConfig.model_validate({})
+    assert cfg.amazon.captcha_solver == "2captcha"
+    assert cfg.amazon.captcha_api_key == "abc123"
+
+
+def test_amazon_config_captcha_defaults_empty(monkeypatch, tmp_path):
+    """When env vars are unset, captcha fields default to empty strings."""
+    monkeypatch.setenv("AMAZON_CAPTCHA_SOLVER", "")
+    monkeypatch.setenv("AMAZON_CAPTCHA_API_KEY", "")
+    cfg = AppConfig.model_validate({})
+    assert cfg.amazon.captcha_solver == ""
+    assert cfg.amazon.captcha_api_key == ""
+
+
+def test_amazon_config_toml_overrides_env(monkeypatch, tmp_path):
+    """TOML value wins over an absent env var."""
+    monkeypatch.setenv("AMAZON_CAPTCHA_SOLVER", "")
+    monkeypatch.setenv("AMAZON_CAPTCHA_API_KEY", "")
+    toml_file = tmp_path / "config.toml"
+    toml_file.write_text(
+        "[amazon]\ncaptcha_solver = '2captcha'\ncaptcha_api_key = 'tomlkey'\n"
+    )
+    cfg = load_config(toml_file)
+    assert cfg.amazon.captcha_solver == "2captcha"
+    assert cfg.amazon.captcha_api_key == "tomlkey"

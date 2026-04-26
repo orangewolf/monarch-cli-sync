@@ -18,6 +18,8 @@ from monarch_cli_sync.status import SyncResult, SyncStatus
 console = Console()
 err_console = Console(stderr=True)
 
+logger = logging.getLogger(__name__)
+
 
 def _setup_logging(verbose: bool, quiet: bool) -> None:
     level = logging.DEBUG if verbose else (logging.ERROR if quiet else logging.INFO)
@@ -26,6 +28,7 @@ def _setup_logging(verbose: bool, quiet: bool) -> None:
         level=level,
         format="[%(asctime)s] [%(levelname)s] %(message)s",
         datefmt="%Y-%m-%dT%H:%M:%S",
+        force=True,
     )
 
 
@@ -87,6 +90,12 @@ def doctor(ctx: click.Context, verbose: bool) -> None:
         if not quiet:
             console.print(f"[yellow]![/yellow] Amazon cookies not found: {amazon_cookies}")
 
+    # 4. Optional Amazon WAF CAPTCHA solver
+    config = load_config()
+    solver_status = config.amazon.captcha_solver or "disabled"
+    if not quiet:
+        console.print(f"Amazon WAF auto-solve: {solver_status}")
+
     if errors:
         result = SyncResult(status=SyncStatus.ERROR, errors=errors, message="doctor found errors")
     elif warnings:
@@ -112,6 +121,11 @@ def auth_amazon(ctx: click.Context, verbose: bool) -> None:
     _setup_logging(verbose or (ctx.obj or {}).get("verbose", False), quiet)
 
     config = load_config()
+
+    if config.amazon.captcha_solver:
+        logger.info(
+            "Amazon WAF auto-solve enabled (%s)", config.amazon.captcha_solver
+        )
 
     try:
         from monarch_cli_sync.amazon.session import load_or_login as amazon_load_or_login

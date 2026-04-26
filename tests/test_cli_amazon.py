@@ -74,6 +74,41 @@ def test_auth_amazon_unexpected_error(runner):
     assert "error" in result.output
 
 
+def test_auth_amazon_logs_solver_status_when_configured(runner, monkeypatch):
+    """When captcha solver is configured, auth amazon emits an info log line."""
+    monkeypatch.setenv("AMAZON_CAPTCHA_SOLVER", "2captcha")
+    monkeypatch.setenv("AMAZON_CAPTCHA_API_KEY", "k")
+
+    def fake_load_or_login(config, force=False, cookie_file=None, **kwargs):
+        session = MagicMock()
+        session.is_authenticated = True
+        return session
+
+    with patch("monarch_cli_sync.amazon.session.load_or_login", fake_load_or_login):
+        result = runner.invoke(main, ["-v", "auth", "amazon"])
+
+    assert result.exit_code == 0
+    assert "WAF auto-solve enabled" in result.output
+    assert "2captcha" in result.output
+
+
+def test_auth_amazon_no_solver_log_when_unconfigured(runner, monkeypatch):
+    """No solver log line when captcha is not configured."""
+    monkeypatch.setenv("AMAZON_CAPTCHA_SOLVER", "")
+    monkeypatch.setenv("AMAZON_CAPTCHA_API_KEY", "")
+
+    def fake_load_or_login(config, force=False, cookie_file=None, **kwargs):
+        session = MagicMock()
+        session.is_authenticated = True
+        return session
+
+    with patch("monarch_cli_sync.amazon.session.load_or_login", fake_load_or_login):
+        result = runner.invoke(main, ["-v", "auth", "amazon"])
+
+    assert result.exit_code == 0
+    assert "WAF auto-solve enabled" not in result.output
+
+
 # ---------------------------------------------------------------------------
 # sync --dry-run (Phase 2: shows both Amazon orders and Monarch transactions)
 # ---------------------------------------------------------------------------
@@ -197,6 +232,50 @@ def test_doctor_all_present(runner, tmp_path):
 
     assert result.exit_code == 0
     assert "ok" in result.output
+
+
+def test_doctor_reports_captcha_solver_when_configured(runner, monkeypatch, tmp_path):
+    """doctor reports configured Amazon WAF auto-solve status."""
+    monkeypatch.setenv("AMAZON_CAPTCHA_SOLVER", "2captcha")
+    monkeypatch.setenv("AMAZON_CAPTCHA_API_KEY", "k")
+    config_file = tmp_path / "config.toml"
+    config_file.write_text("")
+    monarch_session = tmp_path / "monarch_session.pkl"
+    monarch_session.write_bytes(b"")
+    amazon_cookies = tmp_path / "amazon_cookies.json"
+    amazon_cookies.write_text("{}")
+
+    with (
+        patch("monarch_cli_sync.config.CONFIG_FILE", config_file),
+        patch("monarch_cli_sync.monarch.session.get_session_file", return_value=monarch_session),
+        patch("monarch_cli_sync.amazon.session.get_cookie_file", return_value=amazon_cookies),
+    ):
+        result = runner.invoke(main, ["doctor"])
+
+    assert result.exit_code == 0
+    assert "Amazon WAF auto-solve: 2captcha" in result.output
+
+
+def test_doctor_reports_captcha_solver_disabled(runner, monkeypatch, tmp_path):
+    """doctor reports disabled when no Amazon WAF solver is configured."""
+    monkeypatch.setenv("AMAZON_CAPTCHA_SOLVER", "")
+    monkeypatch.setenv("AMAZON_CAPTCHA_API_KEY", "")
+    config_file = tmp_path / "config.toml"
+    config_file.write_text("")
+    monarch_session = tmp_path / "monarch_session.pkl"
+    monarch_session.write_bytes(b"")
+    amazon_cookies = tmp_path / "amazon_cookies.json"
+    amazon_cookies.write_text("{}")
+
+    with (
+        patch("monarch_cli_sync.config.CONFIG_FILE", config_file),
+        patch("monarch_cli_sync.monarch.session.get_session_file", return_value=monarch_session),
+        patch("monarch_cli_sync.amazon.session.get_cookie_file", return_value=amazon_cookies),
+    ):
+        result = runner.invoke(main, ["doctor"])
+
+    assert result.exit_code == 0
+    assert "Amazon WAF auto-solve: disabled" in result.output
 
 
 def test_doctor_missing_monarch_session(runner, tmp_path):
