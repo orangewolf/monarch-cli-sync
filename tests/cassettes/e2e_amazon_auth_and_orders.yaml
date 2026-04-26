@@ -1,0 +1,2075 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cache-Control:
+      - max-age=0
+      Connection:
+      - keep-alive
+      Device-Memory:
+      - '8'
+      Downlink:
+      - '10'
+      Dpr:
+      - '2'
+      Ect:
+      - 4g
+      Host:
+      - www.amazon.com
+      Origin:
+      - https://www.amazon.com
+      Priority:
+      - u=0, i
+      Referer:
+      - https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_custrec_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+      Rtt:
+      - '0'
+      Sec-Ch-Device-Memory:
+      - '8'
+      Sec-Ch-Dpr:
+      - '2'
+      Sec-Ch-Ua:
+      - Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140
+      Sec-Ch-Ua-Mobile:
+      - ?0
+      Sec-Ch-Ua-Platform:
+      - macOS
+      Sec-Ch-Ua-Platform-Version:
+      - 15.6.1
+      Sec-Ch-Viewport-Width:
+      - '1512'
+      Sec-Fetch-Dest:
+      - document
+      Sec-Fetch-Mode:
+      - navigate
+      Sec-Fetch-Site:
+      - none
+      Sec-Fetch-User:
+      - ?1
+      Upgrade-Insecure-Requests:
+      - '1'
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6_1) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/140.0.0.0 Safari/537.36
+      Viewport-Width:
+      - '1512'
+      cookie:
+      - FILTERED
+    method: GET
+    uri: https://www.amazon.com/
+  response:
+    body:
+      string: FILTERED_HTML_BODY
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/html;charset=UTF-8
+      Date:
+      - Sun, 26 Apr 2026 21:37:38 GMT
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 0b05227e6c901c5cadd6f36979dbb0ba.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - ySbfPMp7_JTtczQ0HWlCM4pnbyprK2H4HSGbQGcQKKYBu-_R1O1EGw==
+      X-Amz-Cf-Pop:
+      - LAX50-P1
+      X-Cache:
+      - Miss from cloudfront
+      accept-ch:
+      - ect,rtt,downlink,device-memory,sec-ch-device-memory,viewport-width,sec-ch-viewport-width,dpr,sec-ch-dpr,sec-ch-ua-full-version-list,viewport-height,sec-ch-viewport-height,sec-ch-ua-platform,sec-ch-ua-platform-version
+      accept-ch-lifetime:
+      - '86400'
+      cache-control:
+      - no-cache
+      content-language:
+      - en-US
+      content-length:
+      - '1160439'
+      content-security-policy:
+      - upgrade-insecure-requests;report-uri https://metrics.media-amazon.com/
+      content-security-policy-report-only:
+      - 'default-src ''self'' blob: https: data: mediastream: ''unsafe-eval'' ''unsafe-inline'';report-uri
+        https://metrics.media-amazon.com/'
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Server
+      set-cookie:
+      - FILTERED
+      strict-transport-security:
+      - max-age=47474747; includeSubDomains; preload
+      vary:
+      - Content-Type,Accept-Encoding,User-Agent
+      x-amz-rid:
+      - 6S789RE3EFG56AQ0JNX3
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-ua-compatible:
+      - IE=edge
+      x-xss-protection:
+      - 1;
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cache-Control:
+      - max-age=0
+      Connection:
+      - keep-alive
+      Device-Memory:
+      - '8'
+      Downlink:
+      - '10'
+      Dpr:
+      - '2'
+      Ect:
+      - 4g
+      Host:
+      - www.amazon.com
+      Origin:
+      - https://www.amazon.com
+      Priority:
+      - u=0, i
+      Referer:
+      - https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_custrec_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+      Rtt:
+      - '0'
+      Sec-Ch-Device-Memory:
+      - '8'
+      Sec-Ch-Dpr:
+      - '2'
+      Sec-Ch-Ua:
+      - Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140
+      Sec-Ch-Ua-Mobile:
+      - ?0
+      Sec-Ch-Ua-Platform:
+      - macOS
+      Sec-Ch-Ua-Platform-Version:
+      - 15.6.1
+      Sec-Ch-Viewport-Width:
+      - '1512'
+      Sec-Fetch-Dest:
+      - document
+      Sec-Fetch-Mode:
+      - navigate
+      Sec-Fetch-Site:
+      - none
+      Sec-Fetch-User:
+      - ?1
+      Upgrade-Insecure-Requests:
+      - '1'
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6_1) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/140.0.0.0 Safari/537.36
+      Viewport-Width:
+      - '1512'
+      cookie:
+      - FILTERED
+    method: GET
+    uri: https://www.amazon.com/ap/signin?openid.assoc_handle=usflex&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.mode=checkid_setup&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_custrec_signin
+  response:
+    body:
+      string: FILTERED_HTML_BODY
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/html;charset=UTF-8
+      Date:
+      - Sun, 26 Apr 2026 21:37:41 GMT
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 23bffd9150a140c767b5c5b5f0e9b222.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - qOpZtsK_5C_9h2RubxbPdCTABF5leYXR2B5FkNkBwtI6dcgrh017JA==
+      X-Amz-Cf-Pop:
+      - LAX50-P1
+      X-Cache:
+      - Miss from cloudfront
+      cache-control:
+      - max-age=0, no-cache, no-store, must-revalidate
+      content-language:
+      - en-US
+      content-length:
+      - '136503'
+      expires:
+      - Thu, 01 Jan 1970 00:00:00 GMT
+      pragma:
+      - No-cache
+      server:
+      - Server
+      set-cookie:
+      - FILTERED
+      strict-transport-security:
+      - max-age=47474747; includeSubDomains; preload
+      vary:
+      - accept-encoding,Content-Type,Accept-Encoding,User-Agent
+      x-amz-rid:
+      - 0PWMH73B761XXFW6N02A
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - '1'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cache-Control:
+      - max-age=0
+      Connection:
+      - keep-alive
+      Device-Memory:
+      - '8'
+      Downlink:
+      - '10'
+      Dpr:
+      - '2'
+      Ect:
+      - 4g
+      Host:
+      - www.amazon.com
+      Origin:
+      - https://www.amazon.com
+      Priority:
+      - u=0, i
+      Referer:
+      - https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_custrec_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+      Rtt:
+      - '0'
+      Sec-Ch-Device-Memory:
+      - '8'
+      Sec-Ch-Dpr:
+      - '2'
+      Sec-Ch-Ua:
+      - Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140
+      Sec-Ch-Ua-Mobile:
+      - ?0
+      Sec-Ch-Ua-Platform:
+      - macOS
+      Sec-Ch-Ua-Platform-Version:
+      - 15.6.1
+      Sec-Ch-Viewport-Width:
+      - '1512'
+      Sec-Fetch-Dest:
+      - document
+      Sec-Fetch-Mode:
+      - navigate
+      Sec-Fetch-Site:
+      - none
+      Sec-Fetch-User:
+      - ?1
+      Upgrade-Insecure-Requests:
+      - '1'
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6_1) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/140.0.0.0 Safari/537.36
+      Viewport-Width:
+      - '1512'
+      cookie:
+      - FILTERED
+    method: GET
+    uri: https://www.amazon.com/your-orders/orders?timeFilter=year-2024
+  response:
+    body:
+      string: FILTERED_HTML_BODY
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/html;charset=UTF-8
+      Date:
+      - Sun, 26 Apr 2026 21:37:41 GMT
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 3c478a1cf5abf5ffa4902e34c0d54510.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - ln-ib2YKx7Mwv7eX1o7sc_GJANq9nZGOwYvZwrlx1Pyd12AY5z-0cA==
+      X-Amz-Cf-Pop:
+      - LAX50-P1
+      X-Cache:
+      - Miss from cloudfront
+      accept-ch:
+      - ect,rtt,downlink,device-memory,sec-ch-device-memory,viewport-width,sec-ch-viewport-width,dpr,sec-ch-dpr,sec-ch-ua-full-version-list,viewport-height,sec-ch-viewport-height
+      accept-ch-lifetime:
+      - '86400'
+      cache-control:
+      - no-cache, no-store, must-revalidate, max-age=0
+      content-language:
+      - en-US
+      content-length:
+      - '674735'
+      content-security-policy:
+      - upgrade-insecure-requests;report-uri https://metrics.media-amazon.com/
+      content-security-policy-report-only:
+      - 'default-src ''self'' blob: https: data: mediastream: ''unsafe-eval'' ''unsafe-inline'';report-uri
+        https://metrics.media-amazon.com/'
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Server
+      set-cookie:
+      - FILTERED
+      strict-transport-security:
+      - max-age=47474747; includeSubDomains; preload
+      vary:
+      - Content-Type,Accept-Encoding,User-Agent
+      x-amz-rid:
+      - 7KY4B0ET8Y4S28A0RYDN
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - 1;
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cache-Control:
+      - max-age=0
+      Connection:
+      - keep-alive
+      Device-Memory:
+      - '8'
+      Downlink:
+      - '10'
+      Dpr:
+      - '2'
+      Ect:
+      - 4g
+      Host:
+      - www.amazon.com
+      Origin:
+      - https://www.amazon.com
+      Priority:
+      - u=0, i
+      Referer:
+      - https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_custrec_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+      Rtt:
+      - '0'
+      Sec-Ch-Device-Memory:
+      - '8'
+      Sec-Ch-Dpr:
+      - '2'
+      Sec-Ch-Ua:
+      - Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140
+      Sec-Ch-Ua-Mobile:
+      - ?0
+      Sec-Ch-Ua-Platform:
+      - macOS
+      Sec-Ch-Ua-Platform-Version:
+      - 15.6.1
+      Sec-Ch-Viewport-Width:
+      - '1512'
+      Sec-Fetch-Dest:
+      - document
+      Sec-Fetch-Mode:
+      - navigate
+      Sec-Fetch-Site:
+      - none
+      Sec-Fetch-User:
+      - ?1
+      Upgrade-Insecure-Requests:
+      - '1'
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6_1) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/140.0.0.0 Safari/537.36
+      Viewport-Width:
+      - '1512'
+      cookie:
+      - FILTERED
+    method: GET
+    uri: https://www.amazon.com/your-orders/orders?ref_=ppx_yo2ov_dt_b_pagination_1_2&startIndex=10&timeFilter=year-2024
+  response:
+    body:
+      string: FILTERED_HTML_BODY
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/html;charset=UTF-8
+      Date:
+      - Sun, 26 Apr 2026 21:37:42 GMT
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 b180bc4adf0ab139e816fdb05c499c58.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - za5MvzGsPZ3foM-h9OpZgda1g7QA3sAoG9OuTySsXfpHxv_w5dJgdg==
+      X-Amz-Cf-Pop:
+      - LAX50-P1
+      X-Cache:
+      - Miss from cloudfront
+      accept-ch:
+      - ect,rtt,downlink,device-memory,sec-ch-device-memory,viewport-width,sec-ch-viewport-width,dpr,sec-ch-dpr,sec-ch-ua-full-version-list,viewport-height,sec-ch-viewport-height
+      accept-ch-lifetime:
+      - '86400'
+      cache-control:
+      - no-cache, no-store, must-revalidate, max-age=0
+      content-language:
+      - en-US
+      content-length:
+      - '669253'
+      content-security-policy:
+      - upgrade-insecure-requests;report-uri https://metrics.media-amazon.com/
+      content-security-policy-report-only:
+      - 'default-src ''self'' blob: https: data: mediastream: ''unsafe-eval'' ''unsafe-inline'';report-uri
+        https://metrics.media-amazon.com/'
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Server
+      strict-transport-security:
+      - max-age=47474747; includeSubDomains; preload
+      vary:
+      - Content-Type,Accept-Encoding,User-Agent
+      x-amz-rid:
+      - 4RTCSV0RKQ3S07EKT2MN
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - 1;
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cache-Control:
+      - max-age=0
+      Connection:
+      - keep-alive
+      Device-Memory:
+      - '8'
+      Downlink:
+      - '10'
+      Dpr:
+      - '2'
+      Ect:
+      - 4g
+      Host:
+      - www.amazon.com
+      Origin:
+      - https://www.amazon.com
+      Priority:
+      - u=0, i
+      Referer:
+      - https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_custrec_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+      Rtt:
+      - '0'
+      Sec-Ch-Device-Memory:
+      - '8'
+      Sec-Ch-Dpr:
+      - '2'
+      Sec-Ch-Ua:
+      - Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140
+      Sec-Ch-Ua-Mobile:
+      - ?0
+      Sec-Ch-Ua-Platform:
+      - macOS
+      Sec-Ch-Ua-Platform-Version:
+      - 15.6.1
+      Sec-Ch-Viewport-Width:
+      - '1512'
+      Sec-Fetch-Dest:
+      - document
+      Sec-Fetch-Mode:
+      - navigate
+      Sec-Fetch-Site:
+      - none
+      Sec-Fetch-User:
+      - ?1
+      Upgrade-Insecure-Requests:
+      - '1'
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6_1) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/140.0.0.0 Safari/537.36
+      Viewport-Width:
+      - '1512'
+      cookie:
+      - FILTERED
+    method: GET
+    uri: https://www.amazon.com/your-orders/orders?ref_=ppx_yo2ov_dt_b_pagination_2_3&startIndex=20&timeFilter=year-2024
+  response:
+    body:
+      string: FILTERED_HTML_BODY
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/html;charset=UTF-8
+      Date:
+      - Sun, 26 Apr 2026 21:37:44 GMT
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 d819e0fec943c45d31b55f5dce0b44ee.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - 3FzX4tnn342hNwl_iL6v_ULfiKoU4hm8rYC3pc7H5lEWqnJGUuw8dA==
+      X-Amz-Cf-Pop:
+      - LAX50-P1
+      X-Cache:
+      - Miss from cloudfront
+      accept-ch:
+      - ect,rtt,downlink,device-memory,sec-ch-device-memory,viewport-width,sec-ch-viewport-width,dpr,sec-ch-dpr,sec-ch-ua-full-version-list,viewport-height,sec-ch-viewport-height
+      accept-ch-lifetime:
+      - '86400'
+      cache-control:
+      - no-cache, no-store, must-revalidate, max-age=0
+      content-language:
+      - en-US
+      content-length:
+      - '693062'
+      content-security-policy:
+      - upgrade-insecure-requests;report-uri https://metrics.media-amazon.com/
+      content-security-policy-report-only:
+      - 'default-src ''self'' blob: https: data: mediastream: ''unsafe-eval'' ''unsafe-inline'';report-uri
+        https://metrics.media-amazon.com/'
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Server
+      strict-transport-security:
+      - max-age=47474747; includeSubDomains; preload
+      vary:
+      - Content-Type,Accept-Encoding,User-Agent
+      x-amz-rid:
+      - AYVRKC2D9E81XXX8SKPG
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - 1;
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cache-Control:
+      - max-age=0
+      Connection:
+      - keep-alive
+      Device-Memory:
+      - '8'
+      Downlink:
+      - '10'
+      Dpr:
+      - '2'
+      Ect:
+      - 4g
+      Host:
+      - www.amazon.com
+      Origin:
+      - https://www.amazon.com
+      Priority:
+      - u=0, i
+      Referer:
+      - https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_custrec_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+      Rtt:
+      - '0'
+      Sec-Ch-Device-Memory:
+      - '8'
+      Sec-Ch-Dpr:
+      - '2'
+      Sec-Ch-Ua:
+      - Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140
+      Sec-Ch-Ua-Mobile:
+      - ?0
+      Sec-Ch-Ua-Platform:
+      - macOS
+      Sec-Ch-Ua-Platform-Version:
+      - 15.6.1
+      Sec-Ch-Viewport-Width:
+      - '1512'
+      Sec-Fetch-Dest:
+      - document
+      Sec-Fetch-Mode:
+      - navigate
+      Sec-Fetch-Site:
+      - none
+      Sec-Fetch-User:
+      - ?1
+      Upgrade-Insecure-Requests:
+      - '1'
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6_1) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/140.0.0.0 Safari/537.36
+      Viewport-Width:
+      - '1512'
+      cookie:
+      - FILTERED
+    method: GET
+    uri: https://www.amazon.com/your-orders/orders?ref_=ppx_yo2ov_dt_b_pagination_3_4&startIndex=30&timeFilter=year-2024
+  response:
+    body:
+      string: FILTERED_HTML_BODY
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/html;charset=UTF-8
+      Date:
+      - Sun, 26 Apr 2026 21:37:45 GMT
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 0194289889dc315295aa558d7838ec6e.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - 8N2DStMfCboth7AILsjlSkKjpZJ56aDY6VsskH0z9a7enM3o6nDzvQ==
+      X-Amz-Cf-Pop:
+      - LAX50-P1
+      X-Cache:
+      - Miss from cloudfront
+      accept-ch:
+      - ect,rtt,downlink,device-memory,sec-ch-device-memory,viewport-width,sec-ch-viewport-width,dpr,sec-ch-dpr,sec-ch-ua-full-version-list,viewport-height,sec-ch-viewport-height
+      accept-ch-lifetime:
+      - '86400'
+      cache-control:
+      - no-cache, no-store, must-revalidate, max-age=0
+      content-language:
+      - en-US
+      content-length:
+      - '711532'
+      content-security-policy:
+      - upgrade-insecure-requests;report-uri https://metrics.media-amazon.com/
+      content-security-policy-report-only:
+      - 'default-src ''self'' blob: https: data: mediastream: ''unsafe-eval'' ''unsafe-inline'';report-uri
+        https://metrics.media-amazon.com/'
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Server
+      strict-transport-security:
+      - max-age=47474747; includeSubDomains; preload
+      vary:
+      - Content-Type,Accept-Encoding,User-Agent
+      x-amz-rid:
+      - Q3VHRX41JBKE166K3DMX
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - 1;
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cache-Control:
+      - max-age=0
+      Connection:
+      - keep-alive
+      Device-Memory:
+      - '8'
+      Downlink:
+      - '10'
+      Dpr:
+      - '2'
+      Ect:
+      - 4g
+      Host:
+      - www.amazon.com
+      Origin:
+      - https://www.amazon.com
+      Priority:
+      - u=0, i
+      Referer:
+      - https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_custrec_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+      Rtt:
+      - '0'
+      Sec-Ch-Device-Memory:
+      - '8'
+      Sec-Ch-Dpr:
+      - '2'
+      Sec-Ch-Ua:
+      - Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140
+      Sec-Ch-Ua-Mobile:
+      - ?0
+      Sec-Ch-Ua-Platform:
+      - macOS
+      Sec-Ch-Ua-Platform-Version:
+      - 15.6.1
+      Sec-Ch-Viewport-Width:
+      - '1512'
+      Sec-Fetch-Dest:
+      - document
+      Sec-Fetch-Mode:
+      - navigate
+      Sec-Fetch-Site:
+      - none
+      Sec-Fetch-User:
+      - ?1
+      Upgrade-Insecure-Requests:
+      - '1'
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6_1) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/140.0.0.0 Safari/537.36
+      Viewport-Width:
+      - '1512'
+      cookie:
+      - FILTERED
+    method: GET
+    uri: https://www.amazon.com/your-orders/orders?ref_=ppx_yo2ov_dt_b_pagination_4_5&startIndex=40&timeFilter=year-2024
+  response:
+    body:
+      string: FILTERED_HTML_BODY
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/html;charset=UTF-8
+      Date:
+      - Sun, 26 Apr 2026 21:37:47 GMT
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 22fad7950a6073b04b079f0ae040a8dc.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - ekvMpl0OgVw1urqiRyxXHfRG6BsUW5etmG0SEK86Il2-c9Cgwo2_TQ==
+      X-Amz-Cf-Pop:
+      - LAX50-P1
+      X-Cache:
+      - Miss from cloudfront
+      accept-ch:
+      - ect,rtt,downlink,device-memory,sec-ch-device-memory,viewport-width,sec-ch-viewport-width,dpr,sec-ch-dpr,sec-ch-ua-full-version-list,viewport-height,sec-ch-viewport-height
+      accept-ch-lifetime:
+      - '86400'
+      cache-control:
+      - no-cache, no-store, must-revalidate, max-age=0
+      content-language:
+      - en-US
+      content-length:
+      - '674298'
+      content-security-policy:
+      - upgrade-insecure-requests;report-uri https://metrics.media-amazon.com/
+      content-security-policy-report-only:
+      - 'default-src ''self'' blob: https: data: mediastream: ''unsafe-eval'' ''unsafe-inline'';report-uri
+        https://metrics.media-amazon.com/'
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Server
+      strict-transport-security:
+      - max-age=47474747; includeSubDomains; preload
+      vary:
+      - Content-Type,Accept-Encoding,User-Agent
+      x-amz-rid:
+      - 5HQM7Y6Z0DFNTWG492R4
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - 1;
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cache-Control:
+      - max-age=0
+      Connection:
+      - keep-alive
+      Device-Memory:
+      - '8'
+      Downlink:
+      - '10'
+      Dpr:
+      - '2'
+      Ect:
+      - 4g
+      Host:
+      - www.amazon.com
+      Origin:
+      - https://www.amazon.com
+      Priority:
+      - u=0, i
+      Referer:
+      - https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_custrec_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+      Rtt:
+      - '0'
+      Sec-Ch-Device-Memory:
+      - '8'
+      Sec-Ch-Dpr:
+      - '2'
+      Sec-Ch-Ua:
+      - Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140
+      Sec-Ch-Ua-Mobile:
+      - ?0
+      Sec-Ch-Ua-Platform:
+      - macOS
+      Sec-Ch-Ua-Platform-Version:
+      - 15.6.1
+      Sec-Ch-Viewport-Width:
+      - '1512'
+      Sec-Fetch-Dest:
+      - document
+      Sec-Fetch-Mode:
+      - navigate
+      Sec-Fetch-Site:
+      - none
+      Sec-Fetch-User:
+      - ?1
+      Upgrade-Insecure-Requests:
+      - '1'
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6_1) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/140.0.0.0 Safari/537.36
+      Viewport-Width:
+      - '1512'
+      cookie:
+      - FILTERED
+    method: GET
+    uri: https://www.amazon.com/your-orders/orders?ref_=ppx_yo2ov_dt_b_pagination_5_6&startIndex=50&timeFilter=year-2024
+  response:
+    body:
+      string: FILTERED_HTML_BODY
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/html;charset=UTF-8
+      Date:
+      - Sun, 26 Apr 2026 21:37:48 GMT
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 83ab40239b11e32cffeba9294e53c0fe.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - LYs8nZzE0s6WS6iHLasOiH8qYBqeZwupUeW0S4PCojs5e78N6tcU-g==
+      X-Amz-Cf-Pop:
+      - LAX50-P1
+      X-Cache:
+      - Miss from cloudfront
+      accept-ch:
+      - ect,rtt,downlink,device-memory,sec-ch-device-memory,viewport-width,sec-ch-viewport-width,dpr,sec-ch-dpr,sec-ch-ua-full-version-list,viewport-height,sec-ch-viewport-height
+      accept-ch-lifetime:
+      - '86400'
+      cache-control:
+      - no-cache, no-store, must-revalidate, max-age=0
+      content-language:
+      - en-US
+      content-length:
+      - '684917'
+      content-security-policy:
+      - upgrade-insecure-requests;report-uri https://metrics.media-amazon.com/
+      content-security-policy-report-only:
+      - 'default-src ''self'' blob: https: data: mediastream: ''unsafe-eval'' ''unsafe-inline'';report-uri
+        https://metrics.media-amazon.com/'
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Server
+      strict-transport-security:
+      - max-age=47474747; includeSubDomains; preload
+      vary:
+      - Content-Type,Accept-Encoding,User-Agent
+      x-amz-rid:
+      - YEFPBW2QR40PZ9SY8E19
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - 1;
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cache-Control:
+      - max-age=0
+      Connection:
+      - keep-alive
+      Device-Memory:
+      - '8'
+      Downlink:
+      - '10'
+      Dpr:
+      - '2'
+      Ect:
+      - 4g
+      Host:
+      - www.amazon.com
+      Origin:
+      - https://www.amazon.com
+      Priority:
+      - u=0, i
+      Referer:
+      - https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_custrec_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+      Rtt:
+      - '0'
+      Sec-Ch-Device-Memory:
+      - '8'
+      Sec-Ch-Dpr:
+      - '2'
+      Sec-Ch-Ua:
+      - Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140
+      Sec-Ch-Ua-Mobile:
+      - ?0
+      Sec-Ch-Ua-Platform:
+      - macOS
+      Sec-Ch-Ua-Platform-Version:
+      - 15.6.1
+      Sec-Ch-Viewport-Width:
+      - '1512'
+      Sec-Fetch-Dest:
+      - document
+      Sec-Fetch-Mode:
+      - navigate
+      Sec-Fetch-Site:
+      - none
+      Sec-Fetch-User:
+      - ?1
+      Upgrade-Insecure-Requests:
+      - '1'
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6_1) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/140.0.0.0 Safari/537.36
+      Viewport-Width:
+      - '1512'
+      cookie:
+      - FILTERED
+    method: GET
+    uri: https://www.amazon.com/your-orders/orders?ref_=ppx_yo2ov_dt_b_pagination_6_7&startIndex=60&timeFilter=year-2024
+  response:
+    body:
+      string: FILTERED_HTML_BODY
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/html;charset=UTF-8
+      Date:
+      - Sun, 26 Apr 2026 21:37:49 GMT
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 03aeebadea872027865b9f27d58208c0.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - 0gpzUBZlf8RteFXfs1Z0l2BaMYP8JMR3aKJYdCMJXQrme1--CAjbVw==
+      X-Amz-Cf-Pop:
+      - LAX50-P1
+      X-Cache:
+      - Miss from cloudfront
+      accept-ch:
+      - ect,rtt,downlink,device-memory,sec-ch-device-memory,viewport-width,sec-ch-viewport-width,dpr,sec-ch-dpr,sec-ch-ua-full-version-list,viewport-height,sec-ch-viewport-height
+      accept-ch-lifetime:
+      - '86400'
+      cache-control:
+      - no-cache, no-store, must-revalidate, max-age=0
+      content-language:
+      - en-US
+      content-length:
+      - '674971'
+      content-security-policy:
+      - upgrade-insecure-requests;report-uri https://metrics.media-amazon.com/
+      content-security-policy-report-only:
+      - 'default-src ''self'' blob: https: data: mediastream: ''unsafe-eval'' ''unsafe-inline'';report-uri
+        https://metrics.media-amazon.com/'
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Server
+      strict-transport-security:
+      - max-age=47474747; includeSubDomains; preload
+      vary:
+      - Content-Type,Accept-Encoding,User-Agent
+      x-amz-rid:
+      - BK62H065Y9W6CEMMBF5S
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - 1;
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cache-Control:
+      - max-age=0
+      Connection:
+      - keep-alive
+      Device-Memory:
+      - '8'
+      Downlink:
+      - '10'
+      Dpr:
+      - '2'
+      Ect:
+      - 4g
+      Host:
+      - www.amazon.com
+      Origin:
+      - https://www.amazon.com
+      Priority:
+      - u=0, i
+      Referer:
+      - https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_custrec_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+      Rtt:
+      - '0'
+      Sec-Ch-Device-Memory:
+      - '8'
+      Sec-Ch-Dpr:
+      - '2'
+      Sec-Ch-Ua:
+      - Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140
+      Sec-Ch-Ua-Mobile:
+      - ?0
+      Sec-Ch-Ua-Platform:
+      - macOS
+      Sec-Ch-Ua-Platform-Version:
+      - 15.6.1
+      Sec-Ch-Viewport-Width:
+      - '1512'
+      Sec-Fetch-Dest:
+      - document
+      Sec-Fetch-Mode:
+      - navigate
+      Sec-Fetch-Site:
+      - none
+      Sec-Fetch-User:
+      - ?1
+      Upgrade-Insecure-Requests:
+      - '1'
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6_1) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/140.0.0.0 Safari/537.36
+      Viewport-Width:
+      - '1512'
+      cookie:
+      - FILTERED
+    method: GET
+    uri: https://www.amazon.com/your-orders/orders?ref_=ppx_yo2ov_dt_b_pagination_7_8&startIndex=70&timeFilter=year-2024
+  response:
+    body:
+      string: FILTERED_HTML_BODY
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/html;charset=UTF-8
+      Date:
+      - Sun, 26 Apr 2026 21:37:50 GMT
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 6873f4a0be6528b5a618dcd775f26d96.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - PDZSejPkkGOCV9ddGQg8iu0Vn5A2VMO5oUh_Qtkj40kBa3kFUZ8hGA==
+      X-Amz-Cf-Pop:
+      - LAX50-P1
+      X-Cache:
+      - Miss from cloudfront
+      accept-ch:
+      - ect,rtt,downlink,device-memory,sec-ch-device-memory,viewport-width,sec-ch-viewport-width,dpr,sec-ch-dpr,sec-ch-ua-full-version-list,viewport-height,sec-ch-viewport-height
+      accept-ch-lifetime:
+      - '86400'
+      cache-control:
+      - no-cache, no-store, must-revalidate, max-age=0
+      content-language:
+      - en-US
+      content-length:
+      - '673022'
+      content-security-policy:
+      - upgrade-insecure-requests;report-uri https://metrics.media-amazon.com/
+      content-security-policy-report-only:
+      - 'default-src ''self'' blob: https: data: mediastream: ''unsafe-eval'' ''unsafe-inline'';report-uri
+        https://metrics.media-amazon.com/'
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Server
+      strict-transport-security:
+      - max-age=47474747; includeSubDomains; preload
+      vary:
+      - Content-Type,Accept-Encoding,User-Agent
+      x-amz-rid:
+      - TRNZZYMKWZH34FBQ39XF
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - 1;
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cache-Control:
+      - max-age=0
+      Connection:
+      - keep-alive
+      Device-Memory:
+      - '8'
+      Downlink:
+      - '10'
+      Dpr:
+      - '2'
+      Ect:
+      - 4g
+      Host:
+      - www.amazon.com
+      Origin:
+      - https://www.amazon.com
+      Priority:
+      - u=0, i
+      Referer:
+      - https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_custrec_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+      Rtt:
+      - '0'
+      Sec-Ch-Device-Memory:
+      - '8'
+      Sec-Ch-Dpr:
+      - '2'
+      Sec-Ch-Ua:
+      - Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140
+      Sec-Ch-Ua-Mobile:
+      - ?0
+      Sec-Ch-Ua-Platform:
+      - macOS
+      Sec-Ch-Ua-Platform-Version:
+      - 15.6.1
+      Sec-Ch-Viewport-Width:
+      - '1512'
+      Sec-Fetch-Dest:
+      - document
+      Sec-Fetch-Mode:
+      - navigate
+      Sec-Fetch-Site:
+      - none
+      Sec-Fetch-User:
+      - ?1
+      Upgrade-Insecure-Requests:
+      - '1'
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6_1) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/140.0.0.0 Safari/537.36
+      Viewport-Width:
+      - '1512'
+      cookie:
+      - FILTERED
+    method: GET
+    uri: https://www.amazon.com/your-orders/orders?ref_=ppx_yo2ov_dt_b_pagination_8_9&startIndex=80&timeFilter=year-2024
+  response:
+    body:
+      string: FILTERED_HTML_BODY
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/html;charset=UTF-8
+      Date:
+      - Sun, 26 Apr 2026 21:37:51 GMT
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 6e65633866cab274ed8ff7cd9e90659c.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - 0JSifwmXZAFBAT95iseYgLsNS8XcgjlKRf5Y8LjgBMnCh65pmfrcpQ==
+      X-Amz-Cf-Pop:
+      - LAX50-P1
+      X-Cache:
+      - Miss from cloudfront
+      accept-ch:
+      - ect,rtt,downlink,device-memory,sec-ch-device-memory,viewport-width,sec-ch-viewport-width,dpr,sec-ch-dpr,sec-ch-ua-full-version-list,viewport-height,sec-ch-viewport-height
+      accept-ch-lifetime:
+      - '86400'
+      cache-control:
+      - no-cache, no-store, must-revalidate, max-age=0
+      content-language:
+      - en-US
+      content-length:
+      - '694947'
+      content-security-policy:
+      - upgrade-insecure-requests;report-uri https://metrics.media-amazon.com/
+      content-security-policy-report-only:
+      - 'default-src ''self'' blob: https: data: mediastream: ''unsafe-eval'' ''unsafe-inline'';report-uri
+        https://metrics.media-amazon.com/'
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Server
+      strict-transport-security:
+      - max-age=47474747; includeSubDomains; preload
+      vary:
+      - Content-Type,Accept-Encoding,User-Agent
+      x-amz-rid:
+      - J5JCEBJAM2FRNXQYMTBT
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - 1;
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cache-Control:
+      - max-age=0
+      Connection:
+      - keep-alive
+      Device-Memory:
+      - '8'
+      Downlink:
+      - '10'
+      Dpr:
+      - '2'
+      Ect:
+      - 4g
+      Host:
+      - www.amazon.com
+      Origin:
+      - https://www.amazon.com
+      Priority:
+      - u=0, i
+      Referer:
+      - https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_custrec_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+      Rtt:
+      - '0'
+      Sec-Ch-Device-Memory:
+      - '8'
+      Sec-Ch-Dpr:
+      - '2'
+      Sec-Ch-Ua:
+      - Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140
+      Sec-Ch-Ua-Mobile:
+      - ?0
+      Sec-Ch-Ua-Platform:
+      - macOS
+      Sec-Ch-Ua-Platform-Version:
+      - 15.6.1
+      Sec-Ch-Viewport-Width:
+      - '1512'
+      Sec-Fetch-Dest:
+      - document
+      Sec-Fetch-Mode:
+      - navigate
+      Sec-Fetch-Site:
+      - none
+      Sec-Fetch-User:
+      - ?1
+      Upgrade-Insecure-Requests:
+      - '1'
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6_1) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/140.0.0.0 Safari/537.36
+      Viewport-Width:
+      - '1512'
+      cookie:
+      - FILTERED
+    method: GET
+    uri: https://www.amazon.com/your-orders/orders?ref_=ppx_yo2ov_dt_b_pagination_9_10&startIndex=90&timeFilter=year-2024
+  response:
+    body:
+      string: FILTERED_HTML_BODY
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/html;charset=UTF-8
+      Date:
+      - Sun, 26 Apr 2026 21:37:53 GMT
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 83ab40239b11e32cffeba9294e53c0fe.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - fobq91LtKSrfdM6faHsq6D52yHbk7-5hmTR0MjL1EWfETM4JEOEB_Q==
+      X-Amz-Cf-Pop:
+      - LAX50-P1
+      X-Cache:
+      - Miss from cloudfront
+      accept-ch:
+      - ect,rtt,downlink,device-memory,sec-ch-device-memory,viewport-width,sec-ch-viewport-width,dpr,sec-ch-dpr,sec-ch-ua-full-version-list,viewport-height,sec-ch-viewport-height
+      accept-ch-lifetime:
+      - '86400'
+      cache-control:
+      - no-cache, no-store, must-revalidate, max-age=0
+      content-language:
+      - en-US
+      content-length:
+      - '682337'
+      content-security-policy:
+      - upgrade-insecure-requests;report-uri https://metrics.media-amazon.com/
+      content-security-policy-report-only:
+      - 'default-src ''self'' blob: https: data: mediastream: ''unsafe-eval'' ''unsafe-inline'';report-uri
+        https://metrics.media-amazon.com/'
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Server
+      strict-transport-security:
+      - max-age=47474747; includeSubDomains; preload
+      vary:
+      - Content-Type,Accept-Encoding,User-Agent
+      x-amz-rid:
+      - 189WH26A81HEEG82Z6SP
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - 1;
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cache-Control:
+      - max-age=0
+      Connection:
+      - keep-alive
+      Device-Memory:
+      - '8'
+      Downlink:
+      - '10'
+      Dpr:
+      - '2'
+      Ect:
+      - 4g
+      Host:
+      - www.amazon.com
+      Origin:
+      - https://www.amazon.com
+      Priority:
+      - u=0, i
+      Referer:
+      - https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_custrec_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+      Rtt:
+      - '0'
+      Sec-Ch-Device-Memory:
+      - '8'
+      Sec-Ch-Dpr:
+      - '2'
+      Sec-Ch-Ua:
+      - Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140
+      Sec-Ch-Ua-Mobile:
+      - ?0
+      Sec-Ch-Ua-Platform:
+      - macOS
+      Sec-Ch-Ua-Platform-Version:
+      - 15.6.1
+      Sec-Ch-Viewport-Width:
+      - '1512'
+      Sec-Fetch-Dest:
+      - document
+      Sec-Fetch-Mode:
+      - navigate
+      Sec-Fetch-Site:
+      - none
+      Sec-Fetch-User:
+      - ?1
+      Upgrade-Insecure-Requests:
+      - '1'
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6_1) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/140.0.0.0 Safari/537.36
+      Viewport-Width:
+      - '1512'
+      cookie:
+      - FILTERED
+    method: GET
+    uri: https://www.amazon.com/your-orders/orders?ref_=ppx_yo2ov_dt_b_pagination_10_11&startIndex=100&timeFilter=year-2024
+  response:
+    body:
+      string: FILTERED_HTML_BODY
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/html;charset=UTF-8
+      Date:
+      - Sun, 26 Apr 2026 21:37:54 GMT
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 92360e9adbf6cc1c5721d7fbaf6aad46.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - XFsBkqNTWor-F5aikri27gbjbLDJijtTQYw5ppWwTi1E-yNpm0L6pw==
+      X-Amz-Cf-Pop:
+      - LAX50-P1
+      X-Cache:
+      - Miss from cloudfront
+      accept-ch:
+      - ect,rtt,downlink,device-memory,sec-ch-device-memory,viewport-width,sec-ch-viewport-width,dpr,sec-ch-dpr,sec-ch-ua-full-version-list,viewport-height,sec-ch-viewport-height
+      accept-ch-lifetime:
+      - '86400'
+      cache-control:
+      - no-cache, no-store, must-revalidate, max-age=0
+      content-language:
+      - en-US
+      content-length:
+      - '708689'
+      content-security-policy:
+      - upgrade-insecure-requests;report-uri https://metrics.media-amazon.com/
+      content-security-policy-report-only:
+      - 'default-src ''self'' blob: https: data: mediastream: ''unsafe-eval'' ''unsafe-inline'';report-uri
+        https://metrics.media-amazon.com/'
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Server
+      strict-transport-security:
+      - max-age=47474747; includeSubDomains; preload
+      vary:
+      - Content-Type,Accept-Encoding,User-Agent
+      x-amz-rid:
+      - D8P8QMH7YZ887R6Q4H9M
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - 1;
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cache-Control:
+      - max-age=0
+      Connection:
+      - keep-alive
+      Device-Memory:
+      - '8'
+      Downlink:
+      - '10'
+      Dpr:
+      - '2'
+      Ect:
+      - 4g
+      Host:
+      - www.amazon.com
+      Origin:
+      - https://www.amazon.com
+      Priority:
+      - u=0, i
+      Referer:
+      - https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_custrec_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+      Rtt:
+      - '0'
+      Sec-Ch-Device-Memory:
+      - '8'
+      Sec-Ch-Dpr:
+      - '2'
+      Sec-Ch-Ua:
+      - Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140
+      Sec-Ch-Ua-Mobile:
+      - ?0
+      Sec-Ch-Ua-Platform:
+      - macOS
+      Sec-Ch-Ua-Platform-Version:
+      - 15.6.1
+      Sec-Ch-Viewport-Width:
+      - '1512'
+      Sec-Fetch-Dest:
+      - document
+      Sec-Fetch-Mode:
+      - navigate
+      Sec-Fetch-Site:
+      - none
+      Sec-Fetch-User:
+      - ?1
+      Upgrade-Insecure-Requests:
+      - '1'
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6_1) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/140.0.0.0 Safari/537.36
+      Viewport-Width:
+      - '1512'
+      cookie:
+      - FILTERED
+    method: GET
+    uri: https://www.amazon.com/your-orders/orders?ref_=ppx_yo2ov_dt_b_pagination_11_12&startIndex=110&timeFilter=year-2024
+  response:
+    body:
+      string: FILTERED_HTML_BODY
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/html;charset=UTF-8
+      Date:
+      - Sun, 26 Apr 2026 21:37:56 GMT
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 cdc360de28dce52ce92fb3d927582b74.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - m1wWfmTRfaHA76i8l67X4o00OJ1DTkGHDuC14E8IvODyAg30doQ0IA==
+      X-Amz-Cf-Pop:
+      - LAX50-P1
+      X-Cache:
+      - Miss from cloudfront
+      accept-ch:
+      - ect,rtt,downlink,device-memory,sec-ch-device-memory,viewport-width,sec-ch-viewport-width,dpr,sec-ch-dpr,sec-ch-ua-full-version-list,viewport-height,sec-ch-viewport-height
+      accept-ch-lifetime:
+      - '86400'
+      cache-control:
+      - no-cache, no-store, must-revalidate, max-age=0
+      content-language:
+      - en-US
+      content-length:
+      - '687679'
+      content-security-policy:
+      - upgrade-insecure-requests;report-uri https://metrics.media-amazon.com/
+      content-security-policy-report-only:
+      - 'default-src ''self'' blob: https: data: mediastream: ''unsafe-eval'' ''unsafe-inline'';report-uri
+        https://metrics.media-amazon.com/'
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Server
+      strict-transport-security:
+      - max-age=47474747; includeSubDomains; preload
+      vary:
+      - Content-Type,Accept-Encoding,User-Agent
+      x-amz-rid:
+      - 0ZTYWGPMTHG47EJHEHQX
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - 1;
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cache-Control:
+      - max-age=0
+      Connection:
+      - keep-alive
+      Device-Memory:
+      - '8'
+      Downlink:
+      - '10'
+      Dpr:
+      - '2'
+      Ect:
+      - 4g
+      Host:
+      - www.amazon.com
+      Origin:
+      - https://www.amazon.com
+      Priority:
+      - u=0, i
+      Referer:
+      - https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_custrec_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+      Rtt:
+      - '0'
+      Sec-Ch-Device-Memory:
+      - '8'
+      Sec-Ch-Dpr:
+      - '2'
+      Sec-Ch-Ua:
+      - Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140
+      Sec-Ch-Ua-Mobile:
+      - ?0
+      Sec-Ch-Ua-Platform:
+      - macOS
+      Sec-Ch-Ua-Platform-Version:
+      - 15.6.1
+      Sec-Ch-Viewport-Width:
+      - '1512'
+      Sec-Fetch-Dest:
+      - document
+      Sec-Fetch-Mode:
+      - navigate
+      Sec-Fetch-Site:
+      - none
+      Sec-Fetch-User:
+      - ?1
+      Upgrade-Insecure-Requests:
+      - '1'
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6_1) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/140.0.0.0 Safari/537.36
+      Viewport-Width:
+      - '1512'
+      cookie:
+      - FILTERED
+    method: GET
+    uri: https://www.amazon.com/your-orders/orders?ref_=ppx_yo2ov_dt_b_pagination_12_13&startIndex=120&timeFilter=year-2024
+  response:
+    body:
+      string: FILTERED_HTML_BODY
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/html;charset=UTF-8
+      Date:
+      - Sun, 26 Apr 2026 21:37:58 GMT
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 9d8d6bf05a0a6195c678f29d47a75e52.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - 2OWhhAsOJysPITgShjs7VXN4zaoA9wrY3664TCsaXTgzI42jUv3_bQ==
+      X-Amz-Cf-Pop:
+      - LAX50-P1
+      X-Cache:
+      - Miss from cloudfront
+      accept-ch:
+      - ect,rtt,downlink,device-memory,sec-ch-device-memory,viewport-width,sec-ch-viewport-width,dpr,sec-ch-dpr,sec-ch-ua-full-version-list,viewport-height,sec-ch-viewport-height
+      accept-ch-lifetime:
+      - '86400'
+      cache-control:
+      - no-cache, no-store, must-revalidate, max-age=0
+      content-language:
+      - en-US
+      content-length:
+      - '701157'
+      content-security-policy:
+      - upgrade-insecure-requests;report-uri https://metrics.media-amazon.com/
+      content-security-policy-report-only:
+      - 'default-src ''self'' blob: https: data: mediastream: ''unsafe-eval'' ''unsafe-inline'';report-uri
+        https://metrics.media-amazon.com/'
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Server
+      strict-transport-security:
+      - max-age=47474747; includeSubDomains; preload
+      vary:
+      - Content-Type,Accept-Encoding,User-Agent
+      x-amz-rid:
+      - D2W4X384RVR2CN2G9Y9E
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - 1;
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cache-Control:
+      - max-age=0
+      Connection:
+      - keep-alive
+      Device-Memory:
+      - '8'
+      Downlink:
+      - '10'
+      Dpr:
+      - '2'
+      Ect:
+      - 4g
+      Host:
+      - www.amazon.com
+      Origin:
+      - https://www.amazon.com
+      Priority:
+      - u=0, i
+      Referer:
+      - https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_custrec_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+      Rtt:
+      - '0'
+      Sec-Ch-Device-Memory:
+      - '8'
+      Sec-Ch-Dpr:
+      - '2'
+      Sec-Ch-Ua:
+      - Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140
+      Sec-Ch-Ua-Mobile:
+      - ?0
+      Sec-Ch-Ua-Platform:
+      - macOS
+      Sec-Ch-Ua-Platform-Version:
+      - 15.6.1
+      Sec-Ch-Viewport-Width:
+      - '1512'
+      Sec-Fetch-Dest:
+      - document
+      Sec-Fetch-Mode:
+      - navigate
+      Sec-Fetch-Site:
+      - none
+      Sec-Fetch-User:
+      - ?1
+      Upgrade-Insecure-Requests:
+      - '1'
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6_1) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/140.0.0.0 Safari/537.36
+      Viewport-Width:
+      - '1512'
+      cookie:
+      - FILTERED
+    method: GET
+    uri: https://www.amazon.com/your-orders/orders?ref_=ppx_yo2ov_dt_b_pagination_13_14&startIndex=130&timeFilter=year-2024
+  response:
+    body:
+      string: FILTERED_HTML_BODY
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/html;charset=UTF-8
+      Date:
+      - Sun, 26 Apr 2026 21:38:00 GMT
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 22fad7950a6073b04b079f0ae040a8dc.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - f22EF2nMVLdxj0j-GBF3S79eu7G4tut87sGlFdujg0lVnpLpeGjmaQ==
+      X-Amz-Cf-Pop:
+      - LAX50-P1
+      X-Cache:
+      - Miss from cloudfront
+      accept-ch:
+      - ect,rtt,downlink,device-memory,sec-ch-device-memory,viewport-width,sec-ch-viewport-width,dpr,sec-ch-dpr,sec-ch-ua-full-version-list,viewport-height,sec-ch-viewport-height
+      accept-ch-lifetime:
+      - '86400'
+      cache-control:
+      - no-cache, no-store, must-revalidate, max-age=0
+      content-language:
+      - en-US
+      content-length:
+      - '665763'
+      content-security-policy:
+      - upgrade-insecure-requests;report-uri https://metrics.media-amazon.com/
+      content-security-policy-report-only:
+      - 'default-src ''self'' blob: https: data: mediastream: ''unsafe-eval'' ''unsafe-inline'';report-uri
+        https://metrics.media-amazon.com/'
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Server
+      strict-transport-security:
+      - max-age=47474747; includeSubDomains; preload
+      vary:
+      - Content-Type,Accept-Encoding,User-Agent
+      x-amz-rid:
+      - KNNMV35CVFPZNG3F39F2
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - 1;
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cache-Control:
+      - max-age=0
+      Connection:
+      - keep-alive
+      Device-Memory:
+      - '8'
+      Downlink:
+      - '10'
+      Dpr:
+      - '2'
+      Ect:
+      - 4g
+      Host:
+      - www.amazon.com
+      Origin:
+      - https://www.amazon.com
+      Priority:
+      - u=0, i
+      Referer:
+      - https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_custrec_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+      Rtt:
+      - '0'
+      Sec-Ch-Device-Memory:
+      - '8'
+      Sec-Ch-Dpr:
+      - '2'
+      Sec-Ch-Ua:
+      - Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140
+      Sec-Ch-Ua-Mobile:
+      - ?0
+      Sec-Ch-Ua-Platform:
+      - macOS
+      Sec-Ch-Ua-Platform-Version:
+      - 15.6.1
+      Sec-Ch-Viewport-Width:
+      - '1512'
+      Sec-Fetch-Dest:
+      - document
+      Sec-Fetch-Mode:
+      - navigate
+      Sec-Fetch-Site:
+      - none
+      Sec-Fetch-User:
+      - ?1
+      Upgrade-Insecure-Requests:
+      - '1'
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6_1) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/140.0.0.0 Safari/537.36
+      Viewport-Width:
+      - '1512'
+      cookie:
+      - FILTERED
+    method: GET
+    uri: https://www.amazon.com/your-orders/orders?ref_=ppx_yo2ov_dt_b_pagination_14_15&startIndex=140&timeFilter=year-2024
+  response:
+    body:
+      string: FILTERED_HTML_BODY
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/html;charset=UTF-8
+      Date:
+      - Sun, 26 Apr 2026 21:38:01 GMT
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 f8ca3888706855f7bdf5771d2184e67e.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - 7BWrq5Rrzy0fKcfnSlNesduWQGlpjWRS3wkYhPy-HBf0bJ7-CYW5DQ==
+      X-Amz-Cf-Pop:
+      - LAX50-P1
+      X-Cache:
+      - Miss from cloudfront
+      accept-ch:
+      - ect,rtt,downlink,device-memory,sec-ch-device-memory,viewport-width,sec-ch-viewport-width,dpr,sec-ch-dpr,sec-ch-ua-full-version-list,viewport-height,sec-ch-viewport-height
+      accept-ch-lifetime:
+      - '86400'
+      cache-control:
+      - no-cache, no-store, must-revalidate, max-age=0
+      content-language:
+      - en-US
+      content-length:
+      - '574214'
+      content-security-policy:
+      - upgrade-insecure-requests;report-uri https://metrics.media-amazon.com/
+      content-security-policy-report-only:
+      - 'default-src ''self'' blob: https: data: mediastream: ''unsafe-eval'' ''unsafe-inline'';report-uri
+        https://metrics.media-amazon.com/'
+      expires:
+      - '-1'
+      pragma:
+      - no-cache
+      server:
+      - Server
+      strict-transport-security:
+      - max-age=47474747; includeSubDomains; preload
+      vary:
+      - Content-Type,Accept-Encoding,User-Agent
+      x-amz-rid:
+      - K9SYK47EN4HCRBCJQCRH
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - 1;
+    status:
+      code: 200
+      message: OK
+version: 1

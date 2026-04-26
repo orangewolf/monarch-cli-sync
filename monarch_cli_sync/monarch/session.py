@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
 import logging
 import sys
 from pathlib import Path
@@ -42,7 +43,9 @@ async def load_or_login(
 
     if not force and path.exists():
         try:
-            mm.load_session()
+            loaded_session = mm.load_session()
+            if inspect.isawaitable(loaded_session):
+                await loaded_session
             logger.debug("Loaded existing Monarch session from %s", path)
             return mm
         except Exception as exc:

@@ -206,6 +206,83 @@ A future version should expose clear states such as:
 5. Implement a minimal end-to-end sync path
 6. Add cron-oriented observability and health checks
 
+## API cassette testing
+
+API tests use [`vcrpy`](https://vcrpy.readthedocs.io/) through [`pytest-recording`](https://github.com/kiwicom/pytest-recording) so tests can run against live services while recording or offline against previously recorded cassettes. See [`docs/api-testing.md`](docs/api-testing.md) for deeper background.
+
+### 1. Install dev dependencies
+
+```bash
+pip install -e '.[dev]'
+```
+
+### 2. Run tests using existing recordings (default)
+
+Cassettes stored in `tests/cassettes/` are replayed automatically. No network access occurs for recorded interactions:
+
+```bash
+pytest
+```
+
+### 3. Run tests offline / in CI (network fully blocked)
+
+Forces all HTTP through cassettes only — any unrecorded request raises an error instead of hitting the network:
+
+```bash
+pytest --block-network --record-mode=none
+```
+
+Use this mode in CI or any environment where live network calls must not happen.
+
+### 4. Record new cassettes for new tests
+
+Records interactions that do not already have a cassette, leaves existing cassettes untouched:
+
+```bash
+pytest --record-mode=new_episodes
+```
+
+To record just the real API end-to-end tests:
+
+```bash
+pytest tests/test_e2e_api_recording.py --record-mode=all
+```
+
+The Monarch E2E test records auth plus a bounded transaction list. The Amazon E2E test is marked `xfail` because Amazon may require CAPTCHA/device approval; the current cassette captures the Amazon challenge path for replay.
+
+### 5. Re-record all cassettes
+
+Replaces every cassette by making fresh live API calls. Use this when upstream API responses have changed:
+
+```bash
+pytest --record-mode=all
+```
+
+### Credentials for live recording
+
+**Live recording must use only `_TEST`-suffixed environment variables.** Do not use production credentials when recording cassettes. The fixture in `tests/conftest.py` reads exactly these variables and exposes nothing else to recording tests:
+
+```dotenv
+MONARCH_EMAIL_TEST=you+test@example.com
+MONARCH_PASSWORD_TEST=...
+MONARCH_MFA_SECRET_KEY_TEST=...
+AMAZON_USERNAME_TEST=you+test@example.com
+AMAZON_PASSWORD_TEST=...
+AMAZON_OTP_SECRET_TEST=...
+```
+
+Set these in your `.env` file (or export them in the shell) before running commands 4 or 5 above.
+
+### Before committing a cassette
+
+VCR is configured to scrub sensitive headers (`authorization`, `cookie`, `set-cookie`, `x-api-key`, `x-auth-token`, `x-csrf-token`), query parameters, and common JSON body fields (`token`, `password`, `secret`, `session`, etc.) before writing cassette files. Still, **inspect every new or changed cassette before committing** — automation is only as good as the scrub list:
+
+```bash
+grep -RniE 'authorization|cookie|set-cookie|password|token|secret|api[_-]?key' tests/cassettes || true
+```
+
+Only placeholders such as `FILTERED` should appear. Do not commit cassettes that contain real credentials, cookies, or session tokens.
+
 ## Repository status
 
 This repository is past the initial scaffold stage, but it is still early.

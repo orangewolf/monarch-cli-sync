@@ -1,0 +1,258 @@
+interactions:
+- request:
+    body:
+      password: FILTERED
+      supports_mfa: true
+      totp: '994113'
+      trusted_device: false
+      username: FILTERED
+    headers:
+      Accept:
+      - application/json
+      Client-Platform:
+      - web
+      Content-Type:
+      - application/json
+      User-Agent:
+      - MonarchMoneyAPI (https://github.com/hammem/monarchmoney)
+    method: POST
+    uri: https://api.monarch.com/auth/login/
+  response:
+    body:
+      string: '{"token": "FILTERED", "tokenExpiration": "FILTERED", "id": "FILTERED",
+        "email": "FILTERED", "name": "FILTERED", "display_name": "FILTERED", "birthday":
+        null, "household_role": "OWNER", "timezone": "America/Los_Angeles", "created_at":
+        "2024-07-14T11:13:03.317680-07:00", "is_demo": false, "is_temporary_demo":
+        false, "is_sponsor": false, "should_force_redirect_sponsor": false, "has_completed_onboarding":
+        true, "household": {"id": "FILTERED", "external_id": "FILTERED", "name": "FILTERED",
+        "address": "FILTERED", "city": "FILTERED", "state": "FILTERED", "zip_code":
+        "FILTERED"}, "other_info": {}, "split_attributes": {"email": "FILTERED", "is_demo":
+        false, "created_at_unix": 1720980783, "household_created_at_unix": 1720980782,
+        "user_external_id": "FILTERED", "household_country": "US", "ai_assistant_enabled":
+        true, "anonymous_id": "FILTERED"}, "external_id": "FILTERED"}'
+    headers:
+      Allow:
+      - POST, OPTIONS
+      CF-RAY:
+      - 9f28b48ada2369b4-LAX
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 26 Apr 2026 21:33:21 GMT
+      Server:
+      - cloudflare
+      Set-Cookie:
+      - FILTERED
+      Vary:
+      - Cookie, Accept-Encoding, Origin
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1016'
+      http_x_request_id:
+      - c6305fe3b1c1429982fad51a3e4610d0
+      referrer-policy:
+      - same-origin
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body:
+      operationName: GetTransactionsList
+      query: "query GetTransactionsList($offset: Int, $limit: Int, $filters: TransactionFilterInput,
+        $orderBy: TransactionOrdering) {\n  allTransactions(filters: $filters) {\n
+        \   totalCount\n    results(offset: $offset, limit: $limit, orderBy: $orderBy)
+        {\n      id\n      ...TransactionOverviewFields\n      __typename\n    }\n
+        \   __typename\n  }\n  transactionRules {\n    id\n    __typename\n  }\n}\n\nfragment
+        TransactionOverviewFields on Transaction {\n  id\n  amount\n  pending\n  date\n
+        \ hideFromReports\n  plaidName\n  notes\n  isRecurring\n  reviewStatus\n  needsReview\n
+        \ attachments {\n    id\n    extension\n    filename\n    originalAssetUrl\n
+        \   publicId\n    sizeBytes\n    __typename\n  }\n  isSplitTransaction\n  createdAt\n
+        \ updatedAt\n  category {\n    id\n    name\n    __typename\n  }\n  merchant
+        {\n    name\n    id\n    transactionsCount\n    __typename\n  }\n  account
+        {\n    id\n    displayName\n    __typename\n  }\n  tags {\n    id\n    name\n
+        \   color\n    order\n    __typename\n  }\n  __typename\n}"
+      variables:
+        filters:
+          accounts: []
+          categories: []
+          endDate: '2024-01-31'
+          search: Amazon
+          startDate: '2024-01-01'
+          tags: []
+        limit: 10
+        offset: 0
+        orderBy: date
+    headers:
+      Accept:
+      - application/json
+      Client-Platform:
+      - web
+      Content-Type:
+      - application/json
+      User-Agent:
+      - MonarchMoneyAPI (https://github.com/hammem/monarchmoney)
+      authorization:
+      - FILTERED
+    method: POST
+    uri: https://api.monarch.com/graphql
+  response:
+    body:
+      string: '{"data": {"allTransactions": {"totalCount": 22, "results": [{"id":
+        "FILTERED", "amount": 0, "pending": false, "date": "2024-01-31", "hideFromReports":
+        false, "plaidName": "FILTERED", "notes": "FILTERED", "isRecurring": false,
+        "reviewStatus": null, "needsReview": false, "attachments": [], "isSplitTransaction":
+        false, "createdAt": "2024-07-14T18:24:43.434188+00:00", "updatedAt": "2025-02-19T00:50:45.057590+00:00",
+        "category": {"id": "FILTERED", "name": "FILTERED", "__typename": "Category"},
+        "merchant": {"name": "FILTERED", "id": "FILTERED", "transactionsCount": 1910,
+        "__typename": "Merchant"}, "account": {"id": "FILTERED", "displayName": "FILTERED",
+        "__typename": "Account"}, "tags": [], "__typename": "Transaction"}, {"id":
+        "FILTERED", "amount": 0, "pending": false, "date": "2024-01-31", "hideFromReports":
+        false, "plaidName": "FILTERED", "notes": "FILTERED", "isRecurring": false,
+        "reviewStatus": null, "needsReview": false, "attachments": [], "isSplitTransaction":
+        false, "createdAt": "2024-07-14T18:24:43.434067+00:00", "updatedAt": "2025-02-19T00:50:44.386720+00:00",
+        "category": {"id": "FILTERED", "name": "FILTERED", "__typename": "Category"},
+        "merchant": {"name": "FILTERED", "id": "FILTERED", "transactionsCount": 1910,
+        "__typename": "Merchant"}, "account": {"id": "FILTERED", "displayName": "FILTERED",
+        "__typename": "Account"}, "tags": [], "__typename": "Transaction"}, {"id":
+        "FILTERED", "amount": 0, "pending": false, "date": "2024-01-28", "hideFromReports":
+        false, "plaidName": "FILTERED", "notes": "FILTERED", "isRecurring": false,
+        "reviewStatus": null, "needsReview": false, "attachments": [], "isSplitTransaction":
+        false, "createdAt": "2024-07-14T18:24:43.435823+00:00", "updatedAt": "2025-02-19T00:50:45.974928+00:00",
+        "category": {"id": "FILTERED", "name": "FILTERED", "__typename": "Category"},
+        "merchant": {"name": "FILTERED", "id": "FILTERED", "transactionsCount": 1910,
+        "__typename": "Merchant"}, "account": {"id": "FILTERED", "displayName": "FILTERED",
+        "__typename": "Account"}, "tags": [], "__typename": "Transaction"}, {"id":
+        "FILTERED", "amount": 0, "pending": false, "date": "2024-01-28", "hideFromReports":
+        false, "plaidName": "FILTERED", "notes": "FILTERED", "isRecurring": false,
+        "reviewStatus": null, "needsReview": false, "attachments": [], "isSplitTransaction":
+        false, "createdAt": "2024-07-14T18:24:43.435700+00:00", "updatedAt": "2025-02-19T00:50:45.395739+00:00",
+        "category": {"id": "FILTERED", "name": "FILTERED", "__typename": "Category"},
+        "merchant": {"name": "FILTERED", "id": "FILTERED", "transactionsCount": 1910,
+        "__typename": "Merchant"}, "account": {"id": "FILTERED", "displayName": "FILTERED",
+        "__typename": "Account"}, "tags": [], "__typename": "Transaction"}, {"id":
+        "FILTERED", "amount": 0, "pending": false, "date": "2024-01-26", "hideFromReports":
+        false, "plaidName": "FILTERED", "notes": "FILTERED", "isRecurring": false,
+        "reviewStatus": null, "needsReview": false, "attachments": [], "isSplitTransaction":
+        false, "createdAt": "2024-07-14T18:24:43.437241+00:00", "updatedAt": "2025-02-19T00:50:46.523559+00:00",
+        "category": {"id": "FILTERED", "name": "FILTERED", "__typename": "Category"},
+        "merchant": {"name": "FILTERED", "id": "FILTERED", "transactionsCount": 1910,
+        "__typename": "Merchant"}, "account": {"id": "FILTERED", "displayName": "FILTERED",
+        "__typename": "Account"}, "tags": [], "__typename": "Transaction"}, {"id":
+        "FILTERED", "amount": 0, "pending": false, "date": "2024-01-23", "hideFromReports":
+        false, "plaidName": "FILTERED", "notes": "FILTERED", "isRecurring": false,
+        "reviewStatus": null, "needsReview": false, "attachments": [], "isSplitTransaction":
+        false, "createdAt": "2024-07-14T18:24:43.439822+00:00", "updatedAt": "2025-02-19T00:50:48.525112+00:00",
+        "category": {"id": "FILTERED", "name": "FILTERED", "__typename": "Category"},
+        "merchant": {"name": "FILTERED", "id": "FILTERED", "transactionsCount": 1910,
+        "__typename": "Merchant"}, "account": {"id": "FILTERED", "displayName": "FILTERED",
+        "__typename": "Account"}, "tags": [], "__typename": "Transaction"}, {"id":
+        "FILTERED", "amount": 0, "pending": false, "date": "2024-01-23", "hideFromReports":
+        false, "plaidName": "FILTERED", "notes": "FILTERED", "isRecurring": false,
+        "reviewStatus": null, "needsReview": false, "attachments": [], "isSplitTransaction":
+        false, "createdAt": "2024-07-14T18:24:43.439695+00:00", "updatedAt": "2025-02-19T00:50:48.147078+00:00",
+        "category": {"id": "FILTERED", "name": "FILTERED", "__typename": "Category"},
+        "merchant": {"name": "FILTERED", "id": "FILTERED", "transactionsCount": 1910,
+        "__typename": "Merchant"}, "account": {"id": "FILTERED", "displayName": "FILTERED",
+        "__typename": "Account"}, "tags": [], "__typename": "Transaction"}, {"id":
+        "FILTERED", "amount": 0, "pending": false, "date": "2024-01-23", "hideFromReports":
+        false, "plaidName": "FILTERED", "notes": "FILTERED", "isRecurring": false,
+        "reviewStatus": null, "needsReview": false, "attachments": [], "isSplitTransaction":
+        false, "createdAt": "2024-07-14T18:24:43.439571+00:00", "updatedAt": "2025-02-19T00:50:47.659694+00:00",
+        "category": {"id": "FILTERED", "name": "FILTERED", "__typename": "Category"},
+        "merchant": {"name": "FILTERED", "id": "FILTERED", "transactionsCount": 1910,
+        "__typename": "Merchant"}, "account": {"id": "FILTERED", "displayName": "FILTERED",
+        "__typename": "Account"}, "tags": [], "__typename": "Transaction"}, {"id":
+        "FILTERED", "amount": 0, "pending": false, "date": "2024-01-23", "hideFromReports":
+        false, "plaidName": "FILTERED", "notes": "FILTERED", "isRecurring": false,
+        "reviewStatus": null, "needsReview": false, "attachments": [], "isSplitTransaction":
+        false, "createdAt": "2024-07-14T18:24:43.439446+00:00", "updatedAt": "2025-02-19T00:50:46.937956+00:00",
+        "category": {"id": "FILTERED", "name": "FILTERED", "__typename": "Category"},
+        "merchant": {"name": "FILTERED", "id": "FILTERED", "transactionsCount": 1910,
+        "__typename": "Merchant"}, "account": {"id": "FILTERED", "displayName": "FILTERED",
+        "__typename": "Account"}, "tags": [], "__typename": "Transaction"}, {"id":
+        "FILTERED", "amount": 0, "pending": false, "date": "2024-01-22", "hideFromReports":
+        false, "plaidName": "FILTERED", "notes": "FILTERED", "isRecurring": false,
+        "reviewStatus": null, "needsReview": false, "attachments": [], "isSplitTransaction":
+        false, "createdAt": "2024-07-14T18:24:43.440478+00:00", "updatedAt": "2024-09-01T16:15:45.339591+00:00",
+        "category": {"id": "FILTERED", "name": "FILTERED", "__typename": "Category"},
+        "merchant": {"name": "FILTERED", "id": "FILTERED", "transactionsCount": 1910,
+        "__typename": "Merchant"}, "account": {"id": "FILTERED", "displayName": "FILTERED",
+        "__typename": "Account"}, "tags": [], "__typename": "Transaction"}], "__typename":
+        "TransactionList"}, "transactionRules": [{"id": "FILTERED", "__typename":
+        "TransactionRuleV2"}, {"id": "FILTERED", "__typename": "TransactionRuleV2"},
+        {"id": "FILTERED", "__typename": "TransactionRuleV2"}, {"id": "FILTERED",
+        "__typename": "TransactionRuleV2"}, {"id": "FILTERED", "__typename": "TransactionRuleV2"},
+        {"id": "FILTERED", "__typename": "TransactionRuleV2"}, {"id": "FILTERED",
+        "__typename": "TransactionRuleV2"}, {"id": "FILTERED", "__typename": "TransactionRuleV2"},
+        {"id": "FILTERED", "__typename": "TransactionRuleV2"}, {"id": "FILTERED",
+        "__typename": "TransactionRuleV2"}, {"id": "FILTERED", "__typename": "TransactionRuleV2"},
+        {"id": "FILTERED", "__typename": "TransactionRuleV2"}, {"id": "FILTERED",
+        "__typename": "TransactionRuleV2"}, {"id": "FILTERED", "__typename": "TransactionRuleV2"},
+        {"id": "FILTERED", "__typename": "TransactionRuleV2"}, {"id": "FILTERED",
+        "__typename": "TransactionRuleV2"}, {"id": "FILTERED", "__typename": "TransactionRuleV2"},
+        {"id": "FILTERED", "__typename": "TransactionRuleV2"}, {"id": "FILTERED",
+        "__typename": "TransactionRuleV2"}, {"id": "FILTERED", "__typename": "TransactionRuleV2"},
+        {"id": "FILTERED", "__typename": "TransactionRuleV2"}, {"id": "FILTERED",
+        "__typename": "TransactionRuleV2"}, {"id": "FILTERED", "__typename": "TransactionRuleV2"},
+        {"id": "FILTERED", "__typename": "TransactionRuleV2"}, {"id": "FILTERED",
+        "__typename": "TransactionRuleV2"}, {"id": "FILTERED", "__typename": "TransactionRuleV2"},
+        {"id": "FILTERED", "__typename": "TransactionRuleV2"}, {"id": "FILTERED",
+        "__typename": "TransactionRuleV2"}, {"id": "FILTERED", "__typename": "TransactionRuleV2"},
+        {"id": "FILTERED", "__typename": "TransactionRuleV2"}, {"id": "FILTERED",
+        "__typename": "TransactionRuleV2"}, {"id": "FILTERED", "__typename": "TransactionRuleV2"},
+        {"id": "FILTERED", "__typename": "TransactionRuleV2"}, {"id": "FILTERED",
+        "__typename": "TransactionRuleV2"}, {"id": "FILTERED", "__typename": "TransactionRuleV2"},
+        {"id": "FILTERED", "__typename": "TransactionRuleV2"}, {"id": "FILTERED",
+        "__typename": "TransactionRuleV2"}, {"id": "FILTERED", "__typename": "TransactionRuleV2"},
+        {"id": "FILTERED", "__typename": "TransactionRuleV2"}, {"id": "FILTERED",
+        "__typename": "TransactionRuleV2"}, {"id": "FILTERED", "__typename": "TransactionRuleV2"},
+        {"id": "FILTERED", "__typename": "TransactionRuleV2"}, {"id": "FILTERED",
+        "__typename": "TransactionRuleV2"}, {"id": "FILTERED", "__typename": "TransactionRuleV2"},
+        {"id": "FILTERED", "__typename": "TransactionRuleV2"}, {"id": "FILTERED",
+        "__typename": "TransactionRuleV2"}, {"id": "FILTERED", "__typename": "TransactionRuleV2"},
+        {"id": "FILTERED", "__typename": "TransactionRuleV2"}, {"id": "FILTERED",
+        "__typename": "TransactionRuleV2"}]}}'
+    headers:
+      Allow:
+      - POST, OPTIONS, GET
+      CF-RAY:
+      - 9f28b4921e6cb4c4-LAX
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 26 Apr 2026 21:33:21 GMT
+      Server:
+      - cloudflare
+      Set-Cookie:
+      - FILTERED
+      Vary:
+      - Cookie, Accept-Encoding, Origin
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '13258'
+      http_x_request_id:
+      - 67f46134de4e46f7953888e269b8ca66
+      referrer-policy:
+      - same-origin
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+version: 1
