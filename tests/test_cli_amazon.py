@@ -15,11 +15,6 @@ from monarch_cli_sync.cli import main
 from monarch_cli_sync.monarch.transactions import MonarchTransaction
 
 
-@pytest.fixture
-def runner():
-    return CliRunner()
-
-
 def _make_order(i: int = 0) -> AmazonOrder:
     return AmazonOrder(
         order_number=f"112-000000{i}-0000000",

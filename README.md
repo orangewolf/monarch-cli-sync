@@ -25,7 +25,7 @@ If `python3.13` is not installed, use another supported interpreter such as `pyt
 
 ### 3. Configure credentials
 
-Copy the example env file and fill in your Monarch credentials:
+Copy the example env file and fill in your credentials:
 
 ```bash
 cp .env.example .env
@@ -34,6 +34,11 @@ cp .env.example .env
 Edit `.env`:
 
 ```dotenv
+# Amazon
+AMAZON_USERNAME=you@example.com
+AMAZON_PASSWORD=yourpassword
+
+# Monarch Money
 MONARCH_EMAIL=you@example.com
 MONARCH_PASSWORD=yourpassword
 MONARCH_MFA_SECRET_KEY=BASE32SECRETFROMMONARCH
@@ -44,6 +49,10 @@ MONARCH_MFA_SECRET_KEY=BASE32SECRETFROMMONARCH
 Alternatively, place these values in `~/.config/monarch-cli-sync/config.toml`:
 
 ```toml
+[amazon]
+username = "you@example.com"
+password = "yourpassword"
+
 [monarch]
 email = "you@example.com"
 password = "yourpassword"
@@ -56,15 +65,25 @@ mfa_secret_key = "BASE32SECRETFROMMONARCH"
 monarch-cli-sync auth monarch
 ```
 
-This performs an interactive Monarch login and persists a session token for later runs.
+Performs an interactive Monarch login and persists a session token for later runs.
 
-### 5. Test with a dry run
+### 5. Authenticate with Amazon
+
+```bash
+monarch-cli-sync auth amazon
+```
+
+Performs an interactive Amazon login and persists cookies for later headless runs. Amazon may prompt for a CAPTCHA or OTP code during this step — that is expected. Once cookies are saved, subsequent runs (including cron) will reuse them without prompting.
+
+> **Note:** Amazon OTP auto-login (equivalent to `MONARCH_MFA_SECRET_KEY` for Monarch) is not yet supported. If your account requires OTP on every login, you will need to re-run `auth amazon` to refresh cookies when they expire.
+
+### 6. Test with a dry run
 
 ```bash
 monarch-cli-sync sync --dry-run
 ```
 
-Current behavior: this fetches recent Monarch transactions whose merchant is Amazon and prints them in a table. It does not write any changes yet.
+Fetches recent Amazon orders and Monarch transactions and prints both in tables. No changes are written to Monarch. Pass `--year YYYY` to inspect a full calendar year, or `--days N` to look back N days (default: 30).
 
 ---
 
@@ -148,17 +167,19 @@ Why Python:
 Available today:
 
 ```bash
-monarch-cli-sync auth monarch
-monarch-cli-sync sync --dry-run
+monarch-cli-sync auth monarch          # interactive Monarch login, saves session token
+monarch-cli-sync auth amazon           # interactive Amazon login, saves cookies
+monarch-cli-sync sync --dry-run        # fetch both sides and print tables; no writes
+monarch-cli-sync sync --dry-run --year 2024
+monarch-cli-sync sync --dry-run --days 90
+monarch-cli-sync doctor                # check config, auth files, and connectivity
 ```
 
-Scaffolded but not implemented yet:
+Not yet implemented:
 
 ```bash
-monarch-cli-sync doctor
-monarch-cli-sync auth amazon
-monarch-cli-sync sync
-monarch-cli-sync status
+monarch-cli-sync sync                  # full sync with writes back to Monarch
+monarch-cli-sync status                # show last run result
 ```
 
 ## What “working” should mean
@@ -291,18 +312,17 @@ Implemented now:
 
 - packaging / editable install
 - config loading from `.env` and `~/.config/monarch-cli-sync/config.toml`
-- `auth monarch`
-- `sync --dry-run` for listing matching Monarch-side Amazon transactions
-- test suite coverage for the current CLI/config/session behavior
+- `auth monarch` — interactive login, session token persisted to disk
+- `auth amazon` — interactive login, cookies persisted to disk
+- `sync --dry-run` — fetches Amazon orders and Monarch transactions, prints both tables
+- `doctor` — checks config file, Monarch session, and Amazon cookie presence
+- test suite coverage for CLI, config, session, and order fetch behavior
 
 Not implemented yet:
 
-- `auth amazon`
-- full Amazon order ingestion
-- matching engine
-- write path back to Monarch
-- `doctor`
-- `status`
+- matching engine (correlating Amazon orders to Monarch transactions)
+- write path back to Monarch (`sync` without `--dry-run`)
+- `status` command
 
 ## License
 

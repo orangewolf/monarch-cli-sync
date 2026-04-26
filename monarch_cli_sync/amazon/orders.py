@@ -89,7 +89,6 @@ def fetch_orders(
             raw_orders.extend(yr_orders)
             logger.debug("Fetched %d raw orders for %d", len(yr_orders), yr)
         except AmazonOrdersError:
-            logger.error("Failed to fetch Amazon orders for year %d", yr)
             raise
 
     orders = []

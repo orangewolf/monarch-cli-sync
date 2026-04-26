@@ -11,6 +11,8 @@ from click.testing import CliRunner
 from monarch_cli_sync.cli import main
 from monarch_cli_sync.monarch.transactions import MonarchTransaction
 
+# runner fixture is provided by conftest.py
+
 
 def _make_transaction(i: int = 0) -> MonarchTransaction:
     return MonarchTransaction(
