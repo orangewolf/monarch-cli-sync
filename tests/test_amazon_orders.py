@@ -85,6 +85,23 @@ def test_normalize_order_empty_grand_total():
     assert result.amount == 0.0
 
 
+def test_normalize_order_float_grand_total():
+    # amazonorders >= 4 returns Order.grand_total as Optional[float],
+    # not a "$24.99" string. Regression for: 'float' object has no attribute 'replace'.
+    raw = _make_raw_order(grand_total=24.99)
+    result = _normalize_order(raw)
+    assert result is not None
+    assert result.amount == 24.99
+
+
+def test_normalize_order_none_grand_total():
+    # Cancelled orders parse grand_total as None.
+    raw = _make_raw_order(grand_total=None)
+    result = _normalize_order(raw)
+    assert result is not None
+    assert result.amount == 0.0
+
+
 # ---------------------------------------------------------------------------
 # fetch_orders
 # ---------------------------------------------------------------------------

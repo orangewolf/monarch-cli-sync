@@ -33,11 +33,20 @@ def _normalize_order(raw) -> AmazonOrder | None:
     if order_date is None:
         return None
 
-    amount_str = (getattr(raw, "grand_total", None) or "").replace("$", "").replace(",", "").strip()
-    try:
-        amount = float(amount_str) if amount_str else 0.0
-    except ValueError:
+    grand_total = getattr(raw, "grand_total", None)
+    if grand_total is None or grand_total == "":
         amount = 0.0
+    elif isinstance(grand_total, str):
+        amount_str = grand_total.replace("$", "").replace(",", "").strip()
+        try:
+            amount = float(amount_str) if amount_str else 0.0
+        except ValueError:
+            amount = 0.0
+    else:
+        try:
+            amount = float(grand_total)
+        except (TypeError, ValueError):
+            amount = 0.0
 
     items = getattr(raw, "items", []) or []
     items_desc = ", ".join(
