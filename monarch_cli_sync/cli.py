@@ -248,14 +248,22 @@ def sync(
         click.echo(result.summary_line())
         sys.exit(result.exit_code)
 
+    from monarch_cli_sync.sync.matcher import flatten_to_charges
+    from monarch_cli_sync.sync.matcher import match as run_match
+
+    charges = flatten_to_charges(orders)
+    match_result = run_match(charges, transactions, force=force)
+
     if not quiet:
         _print_orders_table(orders, start_date, end_date)
         _print_transactions_table(transactions, start_date, end_date)
+        _print_match_table(match_result)
 
     result = SyncResult(
         status=SyncStatus.OK,
         orders_inspected=len(orders),
         transactions_fetched=len(transactions),
+        matched=len(match_result.matches),
         message="dry-run complete",
     )
     click.echo(result.summary_line())
@@ -263,8 +271,6 @@ def sync(
 
 
 def _print_orders_table(orders: list, start_date: date, end_date: date) -> None:
-    from monarch_cli_sync.amazon.orders import AmazonOrder
-
     table = Table(title=f"Amazon orders  {start_date} → {end_date}")
     table.add_column("Date", style="cyan", no_wrap=True)
     table.add_column("Order #", style="white")
@@ -286,8 +292,6 @@ def _print_orders_table(orders: list, start_date: date, end_date: date) -> None:
 
 
 def _print_transactions_table(transactions: list, start_date: date, end_date: date) -> None:
-    from monarch_cli_sync.monarch.transactions import MonarchTransaction
-
     table = Table(title=f"Monarch 'Amazon' transactions  {start_date} → {end_date}")
     table.add_column("Date", style="cyan", no_wrap=True)
     table.add_column("Merchant", style="white")
@@ -310,6 +314,42 @@ def _print_transactions_table(transactions: list, start_date: date, end_date: da
         console.print(table)
     else:
         console.print(f"[yellow]No Amazon transactions found between {start_date} and {end_date}.[/yellow]")
+
+
+def _print_match_table(match_result) -> None:
+    matched = match_result.matches
+    unmatched_charges = match_result.unmatched_charges
+    unmatched_txs = match_result.unmatched_transactions
+
+    if matched:
+        table = Table(title=f"Match preview ({len(matched)} matched)")
+        table.add_column("Charge date", style="cyan", no_wrap=True)
+        table.add_column("Order #", style="white")
+        table.add_column("Amount", justify="right", style="green")
+        table.add_column("Items", style="dim")
+        table.add_column("Tx date", style="cyan", no_wrap=True)
+        table.add_column("Merchant", style="white")
+        table.add_column("Days Δ", justify="right", style="dim")
+
+        for m in matched:
+            delta = abs((m.transaction.date - m.charge.date).days)
+            table.add_row(
+                str(m.charge.date),
+                m.charge.order_number,
+                f"${m.charge.amount:.2f}",
+                m.charge.items_desc[:40],
+                str(m.transaction.date),
+                m.transaction.merchant_name,
+                str(delta),
+            )
+        console.print(table)
+    else:
+        console.print("[yellow]No matches found.[/yellow]")
+
+    if unmatched_charges:
+        console.print(f"[yellow]{len(unmatched_charges)} unmatched Amazon charge(s).[/yellow]")
+    if unmatched_txs:
+        console.print(f"[yellow]{len(unmatched_txs)} unmatched Monarch transaction(s).[/yellow]")
 
 
 @main.command()
