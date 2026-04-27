@@ -1,0 +1,98 @@
+<!--
+  Sanitized Amazon order-history fixture.
+
+  This is a hand-crafted, FAKE order-history page modeled on the real Amazon
+  order-history HTML structure circa 2024. It uses the same CSS hooks that
+  amazon-orders' Selectors look for (data-component attributes, .order-card,
+  .yohtmlc-* classes, etc.) so the live parser exercises real code paths.
+
+  Every value below is fictional:
+    - Order numbers are made-up sequences.
+    - Recipient names/addresses are placeholder strings.
+    - Item titles are generic product names with no ASIN of an actual product.
+    - Totals are illustrative.
+
+  Add new orders here when the parser needs to be exercised against new
+  Amazon HTML shapes. Always sanitize a real recording manually before
+  committing.
+-->
+<!DOCTYPE html>
+<html>
+<head><title>Your Orders</title></head>
+<body>
+<div class="js-yo-container">
+  <span class="num-orders">3 orders placed in</span>
+
+  <!-- Order 1: Two-item order with a normal grand total. -->
+  <div class="order-card">
+    <div data-component="orderId">112-0000001-0000001</div>
+    <div data-component="orderDate">January 15, 2024</div>
+    <div data-component="orderSubtotals">
+      <div class="a-row">
+        <span>grand total</span>
+        <div class="a-span-last">$24.99</div>
+      </div>
+    </div>
+    <div data-component="shipments">
+      <div class="a-box">
+        <div data-component="purchasedItems">
+          <div class="a-fixed-left-grid">
+            <div data-component="itemTitle">
+              <a href="/dp/B000FAKE01">Anker USB-C Charging Cable (3-Pack)</a>
+            </div>
+          </div>
+        </div>
+        <div data-component="purchasedItems">
+          <div class="a-fixed-left-grid">
+            <div data-component="itemTitle">
+              <a href="/dp/B000FAKE02">Adjustable Phone Stand</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order 2: Single-item order with a four-figure grand total (commas). -->
+  <div class="order-card">
+    <div data-component="orderId">112-0000002-0000002</div>
+    <div data-component="orderDate">February 03, 2024</div>
+    <div data-component="orderSubtotals">
+      <div class="a-row">
+        <span>grand total</span>
+        <div class="a-span-last">$1,299.00</div>
+      </div>
+    </div>
+    <div data-component="shipments">
+      <div class="a-box">
+        <div data-component="purchasedItems">
+          <div class="a-fixed-left-grid">
+            <div data-component="itemTitle">
+              <a href="/dp/B000FAKE03">Generic 27" 4K Monitor</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order 3: Cancelled order (no parsable totals). -->
+  <div class="order-card">
+    <div data-component="orderId">112-0000003-0000003</div>
+    <div data-component="orderDate">March 22, 2024</div>
+    <div data-component="shipments">
+      <div class="a-box">
+        <div class="yohtmlc-shipment-status-primaryText">Cancelled</div>
+        <div data-component="purchasedItems">
+          <div class="a-fixed-left-grid">
+            <div data-component="itemTitle">
+              <a href="/dp/B000FAKE04">Wireless Mouse (cancelled)</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

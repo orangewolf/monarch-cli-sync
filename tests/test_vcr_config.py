@@ -143,6 +143,53 @@ def test_response_scrubber_redacts_nested_token(vcr_config):
     assert body["user"]["token"] == "FILTERED"
 
 
+@pytest.mark.parametrize(
+    "key",
+    [
+        "totp",
+        "otp_code",
+        "otpCode",
+        "passcode",
+        "pwd",
+        "claimcheck",
+        "id_token",
+        "idToken",
+        "accountNumber",
+        "last4",
+        "phone",
+        "birthday",
+        "sid",
+        "swfid",
+        "mfa",
+        "csrftoken",
+        "plaid_name",
+    ],
+)
+def test_response_scrubber_redacts_extended_sensitive_keys(vcr_config, key):
+    """Extended sensitive keys (TOTP, OTP, account ids, etc.) must be scrubbed."""
+    scrubber = vcr_config["before_record_response"]
+    result = scrubber(_make_vcr_response({key: "real-value-123", "ok": True}))
+    body = json.loads(result["body"]["string"])
+    assert body[key] == "FILTERED", f"{key} must be scrubbed from response body"
+    assert body["ok"] is True
+
+
+def test_response_scrubber_uses_stable_numeric_placeholder(vcr_config):
+    """Numeric-sensitive fields (amount, balance) must redact to a non-zero
+    placeholder so replay assertions can still validate sign/shape."""
+    scrubber = vcr_config["before_record_response"]
+    result = scrubber(
+        _make_vcr_response({"amount": 123.45, "balance": 6789.01, "ok": True})
+    )
+    body = json.loads(result["body"]["string"])
+    assert body["amount"] != 0, "amount must not be zero — that masks parsing bugs"
+    assert isinstance(body["amount"], (int, float))
+    assert body["amount"] < 0, "placeholder must be negative (Monarch debit convention)"
+    assert isinstance(body["balance"], (int, float))
+    assert body["balance"] != 0
+    assert body["ok"] is True
+
+
 def test_response_scrubber_handles_non_json_body(vcr_config):
     """The response scrubber must leave non-JSON bodies unchanged."""
     scrubber = vcr_config["before_record_response"]
@@ -215,6 +262,72 @@ def test_request_scrubber_handles_non_json_body(vcr_config):
     assert result.body is not None
 
 
+def test_request_scrubber_strips_test_credentials_from_uri(vcr_config, monkeypatch):
+    """If a `_TEST` env var value appears in a URI, it must be scrubbed.
+
+    Amazon and similar providers occasionally embed an email or username in a
+    return-to URL — we don't want that captured in a cassette.
+    """
+    monkeypatch.setenv("AMAZON_USERNAME_TEST", "secret-test-user@example.com")
+    scrubber = vcr_config["before_record_request"]
+    req = _FakeVCRRequest(
+        body=None,
+        uri="https://amazon.com/ap/signin?email=secret-test-user@example.com&ref=foo",
+        method="GET",
+    )
+    result = scrubber(req)
+    assert "secret-test-user@example.com" not in result.uri
+    assert "FILTERED" in result.uri
+
+
+def test_request_scrubber_strips_test_credentials_from_body(vcr_config, monkeypatch):
+    """`_TEST` credential values must also be scrubbed from non-JSON bodies."""
+    monkeypatch.setenv("MONARCH_PASSWORD_TEST", "live-test-password-9001")
+    scrubber = vcr_config["before_record_request"]
+    body = b"username=u&password=live-test-password-9001"
+    req = _FakeVCRRequest(body=body, uri="https://example.com/login", method="POST")
+    result = scrubber(req)
+    assert b"live-test-password-9001" not in result.body
+    assert b"FILTERED" in result.body
+
+
+def test_response_scrubber_strips_fingerprint_headers(vcr_config):
+    """Response-only fingerprint headers (e.g. x-amz-rid) must be scrubbed
+    on the response side without affecting request headers."""
+    scrubber = vcr_config["before_record_response"]
+    response = {
+        "status": {"code": 200, "message": "OK"},
+        "headers": {
+            "Content-Type": ["application/json"],
+            "x-amz-rid": ["ABCDE12345"],
+            "cf-ray": ["9f8a8a8a8a8a-LAX"],
+        },
+        "body": {"string": b"{}"},
+        "url": "https://example.com/",
+    }
+    result = scrubber(response)
+    assert result["headers"]["x-amz-rid"] == ["FILTERED"]
+    assert result["headers"]["cf-ray"] == ["FILTERED"]
+
+
+def test_response_scrubber_strips_test_credential_substrings(vcr_config, monkeypatch):
+    """Even outside JSON, a `_TEST` credential substring leaking into a body
+    (e.g. echoed back in HTML) must be replaced with FILTERED."""
+    monkeypatch.setenv("MONARCH_EMAIL_TEST", "leak-test@example.invalid")
+    scrubber = vcr_config["before_record_response"]
+    response = {
+        "status": {"code": 200, "message": "OK"},
+        "headers": {"Content-Type": ["text/html"]},
+        "body": {
+            "string": b"<html><body>Welcome leak-test@example.invalid</body></html>"
+        },
+        "url": "https://example.com/",
+    }
+    result = scrubber(response)
+    assert b"leak-test@example.invalid" not in result["body"]["string"]
+    assert b"FILTERED" in result["body"]["string"]
+
+
 # ---------------------------------------------------------------------------
 # _TEST credential isolation
 # ---------------------------------------------------------------------------
@@ -277,11 +390,15 @@ def test_cassette_files_contain_no_bare_tokens():
     # Patterns that look like real credentials (not "FILTERED")
     suspicious_patterns = [
         # Real bearer / token auth values (long hex/base64 strings)
-        r"(?i)authorization:\s*(?:Bearer|Token)\s+[A-Za-z0-9+/._-]{20,}",
+        r"(?i)authorization:\s*(?:Bearer|Token)\s+[A-Za-z0-9+/._\-]{20,}",
         # Passwords that are not the placeholder
         r"(?i)['\"]?password['\"]?\s*[:=]\s*['\"](?!FILTERED)[^'\"\s]{6,}",
         # Cookies with real values
         r"(?i)(?:^|\s)cookie:\s+[A-Za-z0-9%+_=; -]{20,}",
+        # JWT-shaped tokens (three base64url segments separated by dots)
+        r"\beyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b",
+        # Generic long opaque tokens that look like JWTs/refresh tokens
+        r"\b[A-Za-z0-9_\-]{40,}\.[A-Za-z0-9_\-]{16,}\.[A-Za-z0-9_\-]{16,}\b",
     ]
 
     for yaml_file in yaml_files:
@@ -290,5 +407,37 @@ def test_cassette_files_contain_no_bare_tokens():
             matches = re.findall(pattern, content, re.MULTILINE)
             assert not matches, (
                 f"Cassette {yaml_file.name} may contain real credentials "
-                f"(pattern {pattern!r}): {matches}"
+                f"(pattern {pattern!r}): {matches[:3]}"
+            )
+
+
+def test_cassettes_contain_no_live_test_credential_values():
+    """No `_TEST` env-var value may appear verbatim in any cassette.
+
+    This is the strongest guarantee we can make automatically: if the user's
+    actual recording credentials are loaded into the environment, scan every
+    cassette for them and fail loudly if a substring matches. Skipped if no
+    `_TEST` credentials are present (typical in CI/offline runs).
+    """
+    import conftest
+
+    creds = conftest.get_test_credentials()
+    live_values = {name: value for name, value in creds.items() if value}
+    if not live_values:
+        pytest.skip("No _TEST credentials loaded; cannot scan for live values")
+
+    cassette_dir = Path(__file__).parent / "cassettes"
+    if not cassette_dir.exists():
+        pytest.skip("No cassettes directory to check")
+
+    yaml_files = list(cassette_dir.rglob("*.yaml"))
+    if not yaml_files:
+        pytest.skip("No cassette files to check")
+
+    for yaml_file in yaml_files:
+        content = yaml_file.read_text(encoding="utf-8").lower()
+        for name, value in live_values.items():
+            assert value.lower() not in content, (
+                f"Cassette {yaml_file.name} contains live `_TEST` credential "
+                f"value for {name!r}; redaction is broken"
             )
