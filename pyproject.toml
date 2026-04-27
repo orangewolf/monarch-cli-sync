@@ -36,6 +36,12 @@ monarch-cli-sync = "monarch_cli_sync.cli:main"
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+# Default to fully offline runs. `--block-network` (pytest-recording) makes any
+# accidental real socket fail loudly; `--record-mode=none` makes any cassette
+# miss fail loudly instead of silently recording. Re-record explicitly with:
+#   pytest --record-mode=all -m e2e        (refresh all cassettes)
+#   pytest --record-mode=once <test_path>  (record a single missing cassette)
+addopts = "--block-network --record-mode=none"
 markers = [
     "e2e: real API tests recorded/replayed with VCR cassettes",
 ]

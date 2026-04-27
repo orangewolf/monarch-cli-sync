@@ -1,19 +1,26 @@
 """End-to-end API tests that record/replay real Monarch and Amazon calls.
 
-These tests intentionally use VCR.py directly so they can decide whether to skip
-before opening a cassette. That keeps normal offline runs green when no live
-*_TEST credentials and no cassette exist yet, while still recording real API
-traffic when run with --record-mode=all or --record-mode=new_episodes.
+These tests use ``@pytest.mark.vcr`` from ``pytest-recording`` so the project's
+single ``vcr_config`` fixture (in ``conftest.py``) drives every cassette —
+filters, scrubbers, and credential redaction. The CLI ``--record-mode`` option
+controls whether a run records or replays. Default is ``--record-mode=none``
+(see ``pyproject.toml``) so missing cassettes / mismatched interactions fail
+loudly rather than silently re-recording.
+
+Each test still calls ``_skip_without_live_credentials_or_cassette`` so that:
+
+- Default offline runs skip when a cassette is absent and no ``_TEST`` creds
+  are loaded (instead of erroring at the first VCR cassette miss).
+- Recording runs (``--record-mode=all`` etc.) skip when the necessary
+  ``_TEST`` env vars are not set.
 """
 
 from __future__ import annotations
 
 from datetime import date
 from pathlib import Path
-from typing import Any
 
 import pytest
-import vcr as vcrpy
 
 from monarch_cli_sync.amazon.orders import fetch_orders
 from monarch_cli_sync.config import AmazonConfig, AppConfig, MonarchConfig
@@ -22,11 +29,15 @@ from monarch_cli_sync.monarch.transactions import fetch_amazon_transactions
 
 
 CASSETTE_DIR = Path(__file__).parent / "cassettes"
-MONARCH_CASSETTE = CASSETTE_DIR / "e2e_monarch_auth_and_transactions.yaml"
-AMAZON_CASSETTE = CASSETTE_DIR / "e2e_amazon_auth_and_orders.yaml"
+MONARCH_CASSETTE_NAME = "e2e_monarch_auth_and_transactions"
+AMAZON_CASSETTE_NAME = "e2e_amazon_auth_and_orders"
+MONARCH_CASSETTE = CASSETTE_DIR / f"{MONARCH_CASSETTE_NAME}.yaml"
+AMAZON_CASSETTE = CASSETTE_DIR / f"{AMAZON_CASSETTE_NAME}.yaml"
+
 DUMMY_EMAIL = "vcr-replay@example.invalid"
 DUMMY_PASSWORD = "vcr-replay-password"
-# Valid base32 so replay does not fail locally before VCR can respond.
+# Public RFC 6238 example secret: valid base32 so MFA replay does not fail
+# locally before VCR can respond. Never replace with a real secret in code.
 DUMMY_MFA_SECRET = "JBSWY3DPEHPK3PXP"
 
 
@@ -56,93 +67,9 @@ def _skip_without_live_credentials_or_cassette(
     pytest.skip(f"{service} E2E cassette does not exist yet: {cassette_path}")
 
 
-def _vcr(test_credentials: dict[str, str | None], *, scrub_html: bool = False) -> vcrpy.VCR:
-    conftest = pytest.importorskip("conftest")
-    config = conftest.vcr_config.__wrapped__()
-    replacements: list[tuple[str, str]] = []
-    for value in test_credentials.values():
-        if value:
-            replacements.append((value, "FILTERED"))
-
-    # Also redact deterministic replay placeholders in case a request body is
-    # persisted before JSON scrubbing sees it.
-    replacements.extend(
-        [
-            (DUMMY_EMAIL, "FILTERED"),
-            (DUMMY_PASSWORD, "FILTERED"),
-            (DUMMY_MFA_SECRET, "FILTERED"),
-        ]
-    )
-
-    return vcrpy.VCR(
-        cassette_library_dir=str(CASSETTE_DIR),
-        record_mode=config["record_mode"],
-        decode_compressed_response=config["decode_compressed_response"],
-        filter_headers=[*config["filter_headers"], ("x-amz-rid", "FILTERED")],
-        filter_query_parameters=[
-            *config["filter_query_parameters"],
-            ("email", "FILTERED"),
-            ("username", "FILTERED"),
-        ],
-        filter_post_data_parameters=[
-            ("email", "FILTERED"),
-            ("username", "FILTERED"),
-            ("password", "FILTERED"),
-            ("mfa_secret_key", "FILTERED"),
-            ("otp_secret_key", "FILTERED"),
-        ],
-        before_record_request=_chain_before_record_request(
-            config["before_record_request"], replacements
-        ),
-        before_record_response=_chain_before_record_response(
-            config["before_record_response"], replacements, scrub_html=scrub_html
-        ),
-    )
-
-
-def _replace_known_values(text: Any, replacements: list[tuple[str, str]]) -> Any:
-    if isinstance(text, bytes):
-        decoded = text.decode("utf-8", errors="ignore")
-        for old, new in replacements:
-            decoded = decoded.replace(old, new)
-        return decoded.encode("utf-8")
-    if isinstance(text, str):
-        for old, new in replacements:
-            text = text.replace(old, new)
-    return text
-
-
-def _chain_before_record_request(scrubber, replacements: list[tuple[str, str]]):
-    def _scrub(request):
-        request = scrubber(request)
-        if getattr(request, "body", None) is not None:
-            request.body = _replace_known_values(request.body, replacements)
-        if getattr(request, "uri", None):
-            request.uri = _replace_known_values(request.uri, replacements)
-        return request
-
-    return _scrub
-
-
-def _chain_before_record_response(
-    scrubber, replacements: list[tuple[str, str]], *, scrub_html: bool = False
-):
-    def _scrub(response):
-        response = scrubber(response)
-        body = response.get("body")
-        headers = response.get("headers") or {}
-        content_types = headers.get("Content-Type") or headers.get("content-type") or []
-        is_html = any("html" in str(content_type).lower() for content_type in content_types)
-        if scrub_html and isinstance(body, dict) and "string" in body and is_html:
-            body["string"] = b"FILTERED_HTML_BODY"
-        elif isinstance(body, dict) and "string" in body:
-            body["string"] = _replace_known_values(body["string"], replacements)
-        return response
-
-    return _scrub
-
-
 @pytest.mark.e2e
+@pytest.mark.vcr
+@pytest.mark.default_cassette(MONARCH_CASSETTE_NAME)
 @pytest.mark.asyncio
 async def test_e2e_monarch_auth_and_list_transactions(
     tmp_path: Path,
@@ -175,39 +102,52 @@ async def test_e2e_monarch_auth_and_list_transactions(
         )
     )
 
-    cassette = _vcr(test_credentials)
-    cassette.record_mode = _record_mode(pytestconfig)
-    with cassette.use_cassette(MONARCH_CASSETTE.name):
-        mm = await monarch_load_or_login(
-            config,
-            force=True,
-            session_file=tmp_path / "monarch_session.pkl",
-        )
-        transactions = await fetch_amazon_transactions(
-            mm,
-            start_date=date(2024, 1, 1),
-            end_date=date(2024, 1, 31),
-            limit=10,
-        )
+    mm = await monarch_load_or_login(
+        config,
+        force=True,
+        session_file=tmp_path / "monarch_session.pkl",
+    )
+    transactions = await fetch_amazon_transactions(
+        mm,
+        start_date=date(2024, 1, 1),
+        end_date=date(2024, 1, 31),
+        limit=10,
+    )
 
     assert isinstance(transactions, list)
     for transaction in transactions:
         assert transaction.id
         assert transaction.date
+        # Numeric-sensitive fields redact to a stable non-zero placeholder
+        # (see NUMERIC_REDACTION_PLACEHOLDER in conftest); we accept either
+        # the legacy 0.0 (older cassettes) or the new placeholder so this
+        # assertion does not require a re-record.
         assert isinstance(transaction.amount, float)
 
 
 @pytest.mark.e2e
-@pytest.mark.xfail(reason="Amazon auth may require CAPTCHA/device approval outside VCR control", strict=False)
+@pytest.mark.vcr
+@pytest.mark.default_cassette(AMAZON_CASSETTE_NAME)
+@pytest.mark.xfail(
+    reason=(
+        "Amazon auth may require CAPTCHA/device approval outside VCR control, "
+        "and the current cassette has HTML bodies wholesale-replaced with "
+        "FILTERED_HTML_BODY so replay cannot parse the login form. Real "
+        "Amazon parsing coverage lives in tests/test_amazon_html_parsing.py."
+    ),
+    strict=False,
+)
 def test_e2e_amazon_auth_and_list_orders(
     pytestconfig: pytest.Config,
     test_credentials: dict[str, str | None],
 ):
     """Attempt Amazon auth and fetch a bounded order list.
 
-    This is an xfail because Amazon may require CAPTCHA or out-of-band device
-    approval. When it succeeds under --record-mode=all, the cassette can be used
-    for offline replay.
+    Marked ``xfail`` because Amazon may require CAPTCHA or out-of-band device
+    approval. When it succeeds under ``--record-mode=all``, the cassette can
+    be used for offline replay — but Amazon's HTML-heavy flow tends to drift,
+    so structural parsing coverage is intentionally provided by the
+    ``tests/test_amazon_html_parsing.py`` HTML-fixture tests instead.
     """
     missing = [
         name
@@ -231,19 +171,16 @@ def test_e2e_amazon_auth_and_list_orders(
         password=test_credentials.get("amazon_password") or DUMMY_PASSWORD,
         otp_secret_key=test_credentials.get("amazon_otp_secret") or DUMMY_MFA_SECRET,
     )
-    cassette = _vcr(test_credentials, scrub_html=True)
-    cassette.record_mode = _record_mode(pytestconfig)
-    with cassette.use_cassette(AMAZON_CASSETTE.name):
-        session = AmazonSession(
-            username=amazon_config.username,
-            password=amazon_config.password,
-            otp_secret_key=amazon_config.otp_secret_key,
-        )
-        session.login()
-        orders = fetch_orders(
-            session,
-            start_date=date(2024, 1, 1),
-            end_date=date(2024, 1, 31),
-        )
+    session = AmazonSession(
+        username=amazon_config.username,
+        password=amazon_config.password,
+        otp_secret_key=amazon_config.otp_secret_key,
+    )
+    session.login()
+    orders = fetch_orders(
+        session,
+        start_date=date(2024, 1, 1),
+        end_date=date(2024, 1, 31),
+    )
 
     assert isinstance(orders, list)
