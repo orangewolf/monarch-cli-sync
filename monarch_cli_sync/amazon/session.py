@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 import logging
 import sys
 from pathlib import Path
@@ -52,10 +53,11 @@ def load_or_login(
     captcha_api_key = config.amazon.captcha_api_key or None
 
     if not force and path.exists():
-        session = SessionCls(
+        session = _build_session(
+            SessionCls,
             username=config.amazon.username or "",
             password=config.amazon.password or "",
-            config=amazon_config,
+            amazon_config=amazon_config,
             captcha_solver=captcha_solver,
             captcha_api_key=captcha_api_key,
         )
@@ -76,10 +78,11 @@ def load_or_login(
         logger.error("AMAZON_USERNAME and AMAZON_PASSWORD must be set for login.")
         sys.exit(2)
 
-    session = SessionCls(
+    session = _build_session(
+        SessionCls,
         username=config.amazon.username,
         password=config.amazon.password,
-        config=amazon_config,
+        amazon_config=amazon_config,
         captcha_solver=captcha_solver,
         captcha_api_key=captcha_api_key,
     )
@@ -92,3 +95,31 @@ def load_or_login(
 
     logger.debug("Amazon login successful, cookies saved to %s", path)
     return session
+
+
+def _build_session(
+    session_cls,
+    *,
+    username: str,
+    password: str,
+    amazon_config: AmazonOrdersConfig,
+    captcha_solver: str | None,
+    captcha_api_key: str | None,
+) -> AmazonSession:
+    """Build an AmazonSession across amazonorders versions.
+
+    Recent forks accept captcha_solver/captcha_api_key constructor kwargs;
+    upstream amazonorders does not. Keep the optional solver integration from
+    exploding against the real constructor used in production/tests.
+    """
+    kwargs = {
+        "username": username,
+        "password": password,
+        "config": amazon_config,
+    }
+    signature = inspect.signature(session_cls)
+    if "captcha_solver" in signature.parameters:
+        kwargs["captcha_solver"] = captcha_solver
+    if "captcha_api_key" in signature.parameters:
+        kwargs["captcha_api_key"] = captcha_api_key
+    return session_cls(**kwargs)

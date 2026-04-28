@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import sys
 from datetime import date, timedelta
+from pathlib import Path
 
 import click
 from rich.console import Console
@@ -14,6 +16,7 @@ from rich.table import Table
 from monarch_cli_sync import __version__
 from monarch_cli_sync.config import load_config
 from monarch_cli_sync.status import SyncResult, SyncStatus
+from monarch_cli_sync.sync.runner import LAST_RUN_FILE
 
 console = Console()
 err_console = Console(stderr=True)
@@ -198,12 +201,8 @@ def sync(
     """Run full sync (Amazon → Monarch)."""
     verbose = verbose or (ctx.obj or {}).get("verbose", False)
     quiet = quiet or (ctx.obj or {}).get("quiet", False)
+    output_json = output_json or (ctx.obj or {}).get("output_json", False)
     _setup_logging(verbose, quiet)
-
-    if not dry_run:
-        result = SyncResult(status=SyncStatus.ERROR, message="sync without --dry-run not yet implemented")
-        click.echo(result.summary_line())
-        sys.exit(result.exit_code)
 
     config = load_config()
 
@@ -216,20 +215,15 @@ def sync(
         end_date = date.today()
         start_date = end_date - timedelta(days=num_days)
 
-    async def _run_monarch() -> list:
-        from monarch_cli_sync.monarch.session import load_or_login
-        from monarch_cli_sync.monarch.transactions import fetch_amazon_transactions
-        mm = await load_or_login(config)
-        return await fetch_amazon_transactions(mm, start_date, end_date)
-
-    def _run_amazon() -> list:
-        from monarch_cli_sync.amazon.session import load_or_login as amazon_load_or_login
-        from monarch_cli_sync.amazon.orders import fetch_orders
-        session = amazon_load_or_login(config)
-        return fetch_orders(session, start_date=start_date, end_date=end_date)
+    async def _run():
+        from monarch_cli_sync.sync.runner import run_sync
+        return await run_sync(
+            config, start_date, end_date,
+            dry_run=dry_run, force=force,
+        )
 
     try:
-        transactions = asyncio.run(_run_monarch())
+        sync_output = asyncio.run(_run())
     except SystemExit:
         raise
     except Exception as exc:
@@ -238,36 +232,16 @@ def sync(
         click.echo(result.summary_line())
         sys.exit(result.exit_code)
 
-    try:
-        orders = _run_amazon()
-    except SystemExit:
-        raise
-    except Exception as exc:
-        err_console.print(f"[red]Error:[/red] {exc}")
-        result = SyncResult(status=SyncStatus.ERROR, message=str(exc))
-        click.echo(result.summary_line())
-        sys.exit(result.exit_code)
+    if not quiet and not output_json:
+        _print_orders_table(sync_output.orders, start_date, end_date)
+        _print_transactions_table(sync_output.transactions, start_date, end_date)
+        _print_match_table(sync_output.match_result)
 
-    from monarch_cli_sync.sync.matcher import flatten_to_charges
-    from monarch_cli_sync.sync.matcher import match as run_match
-
-    charges = flatten_to_charges(orders)
-    match_result = run_match(charges, transactions, force=force)
-
-    if not quiet:
-        _print_orders_table(orders, start_date, end_date)
-        _print_transactions_table(transactions, start_date, end_date)
-        _print_match_table(match_result)
-
-    result = SyncResult(
-        status=SyncStatus.OK,
-        orders_inspected=len(orders),
-        transactions_fetched=len(transactions),
-        matched=len(match_result.matches),
-        message="dry-run complete",
-    )
-    click.echo(result.summary_line())
-    sys.exit(0)
+    if output_json:
+        click.echo(json.dumps(sync_output.result.to_dict(), indent=2))
+    else:
+        click.echo(sync_output.result.summary_line())
+    sys.exit(sync_output.result.exit_code)
 
 
 def _print_orders_table(orders: list, start_date: date, end_date: date) -> None:
@@ -355,7 +329,20 @@ def _print_match_table(match_result) -> None:
 @main.command()
 @click.pass_context
 def status(ctx: click.Context) -> None:
-    """Show last run result."""
-    result = SyncResult(status=SyncStatus.ERROR, message="status not yet implemented")
+    """Show last run result (reads last_run.json)."""
+    if not LAST_RUN_FILE.exists():
+        result = SyncResult(status=SyncStatus.NO_CHANGES, message="no previous run found")
+        click.echo(result.summary_line())
+        sys.exit(result.exit_code)
+
+    try:
+        data = json.loads(LAST_RUN_FILE.read_text())
+        result = SyncResult.from_dict(data)
+    except Exception as exc:
+        result = SyncResult(
+            status=SyncStatus.ERROR,
+            message=f"could not read last_run.json: {exc}",
+        )
+
     click.echo(result.summary_line())
     sys.exit(result.exit_code)

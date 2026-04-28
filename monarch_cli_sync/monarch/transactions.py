@@ -41,6 +41,17 @@ def _parse_transaction(raw: dict) -> MonarchTransaction:
     )
 
 
+async def update_transaction(mm: MonarchMoney, tx_id: str, notes: str) -> bool:
+    """Set the notes field on a Monarch transaction. Returns True on success."""
+    try:
+        await mm.update_transaction(transaction_id=tx_id, notes=notes)
+        logger.debug("Updated transaction %s notes=%r", tx_id, notes)
+        return True
+    except Exception:
+        logger.exception("Failed to update transaction %s", tx_id)
+        return False
+
+
 async def fetch_amazon_transactions(
     mm: MonarchMoney,
     start_date: date,

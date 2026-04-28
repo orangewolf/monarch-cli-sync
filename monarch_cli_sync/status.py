@@ -43,3 +43,30 @@ class SyncResult:
             f"matched={self.matched} updated={self.updated} "
             f"skipped={self.skipped} errors={len(self.errors)}"
         )
+
+    def to_dict(self) -> dict:
+        return {
+            "status": self.status.value,
+            "orders_inspected": self.orders_inspected,
+            "transactions_fetched": self.transactions_fetched,
+            "matched": self.matched,
+            "updated": self.updated,
+            "skipped": self.skipped,
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "message": self.message,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "SyncResult":
+        return cls(
+            status=SyncStatus(data["status"]),
+            orders_inspected=data.get("orders_inspected", 0),
+            transactions_fetched=data.get("transactions_fetched", 0),
+            matched=data.get("matched", 0),
+            updated=data.get("updated", 0),
+            skipped=data.get("skipped", 0),
+            errors=data.get("errors", []),
+            warnings=data.get("warnings", []),
+            message=data.get("message", ""),
+        )

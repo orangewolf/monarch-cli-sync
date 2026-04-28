@@ -52,3 +52,45 @@ def test_errors_list_default_empty():
 def test_errors_count_in_summary():
     r = SyncResult(status=SyncStatus.PARTIAL, errors=["boom", "bang"])
     assert "errors=2" in r.summary_line()
+
+
+def test_to_dict_roundtrip():
+    r = SyncResult(
+        status=SyncStatus.PARTIAL,
+        orders_inspected=10,
+        transactions_fetched=5,
+        matched=3,
+        updated=2,
+        skipped=1,
+        errors=["err1"],
+        warnings=["warn1"],
+        message="partial run",
+    )
+    d = r.to_dict()
+    assert d["status"] == "partial"
+    assert d["orders_inspected"] == 10
+    assert d["matched"] == 3
+    assert d["errors"] == ["err1"]
+
+    r2 = SyncResult.from_dict(d)
+    assert r2.status == SyncStatus.PARTIAL
+    assert r2.orders_inspected == 10
+    assert r2.matched == 3
+    assert r2.updated == 2
+    assert r2.skipped == 1
+    assert r2.errors == ["err1"]
+    assert r2.warnings == ["warn1"]
+    assert r2.message == "partial run"
+
+
+def test_from_dict_defaults_missing_fields():
+    d = {"status": "ok"}
+    r = SyncResult.from_dict(d)
+    assert r.status == SyncStatus.OK
+    assert r.matched == 0
+    assert r.errors == []
+
+
+def test_to_dict_status_is_string():
+    r = SyncResult(status=SyncStatus.ERROR)
+    assert isinstance(r.to_dict()["status"], str)

@@ -11,6 +11,7 @@ from monarch_cli_sync.monarch.transactions import (
     MonarchTransaction,
     _parse_transaction,
     fetch_amazon_transactions,
+    update_transaction,
 )
 
 
@@ -107,6 +108,40 @@ async def test_fetch_amazon_transactions_empty():
     )
 
     assert txs == []
+
+
+@pytest.mark.asyncio
+async def test_update_transaction_success():
+    mm = MagicMock()
+    mm.update_transaction = AsyncMock(return_value={"updateTransaction": {"transaction": {"id": "tx123"}}})
+
+    result = await update_transaction(mm, "tx123", "111-1234567-8901234")
+
+    assert result is True
+    mm.update_transaction.assert_called_once_with(
+        transaction_id="tx123", notes="111-1234567-8901234"
+    )
+
+
+@pytest.mark.asyncio
+async def test_update_transaction_returns_false_on_exception():
+    mm = MagicMock()
+    mm.update_transaction = AsyncMock(side_effect=RuntimeError("network error"))
+
+    result = await update_transaction(mm, "tx123", "111-1234567-8901234")
+
+    assert result is False
+
+
+@pytest.mark.asyncio
+async def test_update_transaction_empty_notes_allowed():
+    mm = MagicMock()
+    mm.update_transaction = AsyncMock(return_value={})
+
+    result = await update_transaction(mm, "tx999", "")
+
+    assert result is True
+    mm.update_transaction.assert_called_once_with(transaction_id="tx999", notes="")
 
 
 def test_monarch_transaction_str():
