@@ -102,6 +102,32 @@ monarch-cli-sync sync --dry-run
 
 Fetches recent Amazon orders and Monarch transactions and prints both in tables. No changes are written to Monarch. Pass `--year YYYY` to inspect a full calendar year, or `--days N` to look back N days (default: 30).
 
+### 7. Run a full sync
+
+```bash
+monarch-cli-sync sync
+```
+
+Matches Amazon orders to Monarch transactions and writes order numbers into each transaction's notes field. Use `--force` to overwrite existing notes.
+
+### 8. Schedule with cron
+
+Add a line like the following to your crontab (`crontab -e`) to run the sync every morning at 6 AM:
+
+```
+0 6 * * * /path/to/venv/bin/monarch-cli-sync sync >> ~/Library/Logs/monarch-cli-sync.log 2>&1
+```
+
+Replace `/path/to/venv` with the path to the virtual environment created in step 2 (e.g. `/Users/you/monarch-cli-sync/.venv`).
+
+Every run prints a one-line summary to stdout regardless of other flags:
+
+```
+monarch-cli-sync: ok | matched=12 updated=12 skipped=3 errors=0
+```
+
+This makes it easy to `grep` cron logs for failures. Use `monarch-cli-sync status` to inspect the last run result at any time.
+
 ---
 
 ## Why this exists
@@ -181,22 +207,17 @@ Why Python:
 
 ## Current CLI shape
 
-Available today:
-
 ```bash
 monarch-cli-sync auth monarch          # interactive Monarch login, saves session token
 monarch-cli-sync auth amazon           # interactive Amazon login, saves cookies
 monarch-cli-sync sync --dry-run        # fetch both sides and print tables; no writes
 monarch-cli-sync sync --dry-run --year 2024
 monarch-cli-sync sync --dry-run --days 90
-monarch-cli-sync doctor                # check config, auth files, and connectivity
-```
-
-Not yet implemented:
-
-```bash
 monarch-cli-sync sync                  # full sync with writes back to Monarch
+monarch-cli-sync sync --force          # overwrite existing notes
 monarch-cli-sync status                # show last run result
+monarch-cli-sync doctor                # check config, auth files, and connectivity
+monarch-cli-sync --version             # print version
 ```
 
 ## What “working” should mean
@@ -323,23 +344,22 @@ Only placeholders such as `FILTERED` should appear. Do not commit cassettes that
 
 ## Repository status
 
-This repository is past the initial scaffold stage, but it is still early.
-
-Implemented now:
+Implemented:
 
 - packaging / editable install
 - config loading from `.env` and `~/.config/monarch-cli-sync/config.toml`
 - `auth monarch` — interactive login, session token persisted to disk
 - `auth amazon` — interactive login, cookies persisted to disk
 - `sync --dry-run` — fetches Amazon orders and Monarch transactions, prints both tables
+- `sync` — full end-to-end sync with write path back to Monarch
+- matching engine — correlates Amazon orders to Monarch transactions by amount + date window
+- `status` — reads and prints the last run result from disk
 - `doctor` — checks config file, Monarch session, and Amazon cookie presence
-- test suite coverage for CLI, config, session, and order fetch behavior
-
-Not implemented yet:
-
-- matching engine (correlating Amazon orders to Monarch transactions)
-- write path back to Monarch (`sync` without `--dry-run`)
-- `status` command
+- rate limiting — configurable `request_delay_seconds` between Amazon page fetches
+- retry logic — up to 3 retries with exponential backoff on Monarch API errors
+- SIGTERM handling — partial results saved if the process is interrupted mid-run
+- JSON output — `--json` flag writes a stable `SyncResult` JSON to stdout
+- test suite coverage for CLI, config, session, matcher, runner, and order fetch behavior
 
 ## License
 

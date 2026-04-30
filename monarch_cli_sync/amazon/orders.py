@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import time
 from dataclasses import dataclass
 from datetime import date, timedelta
 
@@ -67,12 +68,16 @@ def fetch_orders(
     days: int = 30,
     start_date: date | None = None,
     end_date: date | None = None,
+    request_delay_seconds: float = 1.0,
 ) -> list[AmazonOrder]:
     """Fetch Amazon orders and return normalized AmazonOrder objects.
 
     If year is given, fetches all orders for that year.
     Otherwise fetches within the last `days` days (or the explicit start/end range).
     Results are filtered to the computed date range.
+
+    ``request_delay_seconds`` is inserted between year-level fetches to avoid
+    hammering Amazon's servers.  Defaults to 1.0 s; set to 0 to disable.
     """
     if year is not None:
         start_date = date(year, 1, 1)
@@ -92,7 +97,10 @@ def fetch_orders(
 
     client = AmazonOrders(session)
     raw_orders: list = []
-    for yr in years_to_fetch:
+    for idx, yr in enumerate(years_to_fetch):
+        if idx > 0 and request_delay_seconds > 0:
+            logger.debug("Sleeping %.1fs before fetching year %d", request_delay_seconds, yr)
+            time.sleep(request_delay_seconds)
         try:
             yr_orders = client.get_order_history(year=yr)
             raw_orders.extend(yr_orders)
