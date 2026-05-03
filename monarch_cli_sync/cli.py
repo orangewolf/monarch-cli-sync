@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import signal
 import sys
 from datetime import date, timedelta
 from pathlib import Path
@@ -217,9 +218,21 @@ def sync(
 
     async def _run():
         from monarch_cli_sync.sync.runner import run_sync
+        shutdown_event = asyncio.Event()
+
+        # Install SIGTERM handler so partial results are saved if the process is
+        # asked to terminate (e.g. cron job killed or system shutdown).
+        try:
+            loop = asyncio.get_event_loop()
+            loop.add_signal_handler(signal.SIGTERM, shutdown_event.set)
+        except (NotImplementedError, ValueError):
+            # Windows does not support add_signal_handler; best-effort only.
+            pass
+
         return await run_sync(
             config, start_date, end_date,
             dry_run=dry_run, force=force,
+            shutdown_event=shutdown_event,
         )
 
     try:

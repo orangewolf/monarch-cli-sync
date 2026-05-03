@@ -140,16 +140,18 @@ async def test_run_sync_writes_match_notes(mock_config, tmp_path):
 
 @pytest.mark.asyncio
 async def test_run_sync_write_failure_recorded_in_errors(mock_config, tmp_path):
-    """If update_transaction raises, the error is captured in SyncResult.errors."""
+    """If update_transaction raises on all retries, the error is captured in SyncResult.errors."""
     orders = [_make_order()]
     transactions = [_make_tx()]
     mm = MagicMock()
     mm.update_transaction = AsyncMock(side_effect=RuntimeError("API down"))
 
+    # Patch asyncio.sleep so retry backoff doesn't slow the test.
     with patch("monarch_cli_sync.monarch.session.load_or_login", AsyncMock(return_value=mm)), \
          patch("monarch_cli_sync.monarch.transactions.fetch_amazon_transactions", AsyncMock(return_value=transactions)), \
          patch("monarch_cli_sync.amazon.session.load_or_login", return_value=MagicMock()), \
-         patch("monarch_cli_sync.amazon.orders.fetch_orders", return_value=orders):
+         patch("monarch_cli_sync.amazon.orders.fetch_orders", return_value=orders), \
+         patch("monarch_cli_sync.monarch.transactions.asyncio.sleep", new_callable=AsyncMock):
         output = await run_sync(
             mock_config, date(2024, 3, 1), date(2024, 3, 31),
             dry_run=False, last_run_file=tmp_path / "last_run.json",
@@ -162,28 +164,33 @@ async def test_run_sync_write_failure_recorded_in_errors(mock_config, tmp_path):
 
 @pytest.mark.asyncio
 async def test_run_sync_partial_write_errors(mock_config, tmp_path):
-    """Some succeed, some fail → PARTIAL status."""
+    """Some succeed, some fail → PARTIAL status.
+
+    tx2 fails on every attempt (including all retries) so that the retry logic
+    in update_transaction exhausts itself and returns False, leaving us with a
+    genuine partial result.
+    """
     orders = [_make_order("111-A"), _make_order("111-B", amount=10.00, order_date=date(2024, 3, 12))]
     transactions = [
         _make_tx("tx1", amount=-25.99),
         _make_tx("tx2", amount=-10.00, tx_date=date(2024, 3, 12)),
     ]
     mm = MagicMock()
-    call_count = 0
 
     async def _side_effect(**kwargs):
-        nonlocal call_count
-        call_count += 1
-        if call_count == 2:
-            raise RuntimeError("second call fails")
+        # tx1 always succeeds; tx2 always fails (all retry attempts).
+        if kwargs.get("transaction_id") == "tx2":
+            raise RuntimeError("tx2 always fails")
         return {}
 
     mm.update_transaction = AsyncMock(side_effect=_side_effect)
 
+    # Suppress asyncio.sleep so the test runs instantly despite retry backoff.
     with patch("monarch_cli_sync.monarch.session.load_or_login", AsyncMock(return_value=mm)), \
          patch("monarch_cli_sync.monarch.transactions.fetch_amazon_transactions", AsyncMock(return_value=transactions)), \
          patch("monarch_cli_sync.amazon.session.load_or_login", return_value=MagicMock()), \
-         patch("monarch_cli_sync.amazon.orders.fetch_orders", return_value=orders):
+         patch("monarch_cli_sync.amazon.orders.fetch_orders", return_value=orders), \
+         patch("monarch_cli_sync.monarch.transactions.asyncio.sleep", new_callable=AsyncMock):
         output = await run_sync(
             mock_config, date(2024, 3, 1), date(2024, 3, 31),
             dry_run=False, last_run_file=tmp_path / "last_run.json",

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 from dataclasses import dataclass
@@ -31,6 +32,7 @@ async def run_sync(
     dry_run: bool = False,
     force: bool = False,
     last_run_file: Path | None = None,
+    shutdown_event: asyncio.Event | None = None,
 ) -> RunOutput:
     """Orchestrate full sync: fetch → match → write → persist last_run.json."""
     from monarch_cli_sync.monarch.session import load_or_login
@@ -46,7 +48,12 @@ async def run_sync(
     transactions = await fetch_amazon_transactions(mm, start_date, end_date)
 
     session = amazon_load_or_login(config)
-    orders = fetch_orders(session, start_date=start_date, end_date=end_date)
+    orders = fetch_orders(
+        session,
+        start_date=start_date,
+        end_date=end_date,
+        request_delay_seconds=config.amazon.request_delay_seconds,
+    )
 
     charges = flatten_to_charges(orders)
     match_result = run_match(charges, transactions, force=force)
@@ -56,6 +63,10 @@ async def run_sync(
 
     if not dry_run:
         for m in match_result.matches:
+            if shutdown_event is not None and shutdown_event.is_set():
+                logger.warning("SIGTERM received; stopping write loop early.")
+                errors.append("Interrupted by SIGTERM; some transactions may not have been updated.")
+                break
             ok = await update_transaction(mm, m.transaction.id, m.charge.order_number)
             if ok:
                 updated += 1
