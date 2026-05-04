@@ -258,9 +258,10 @@ async def test_run_sync_shutdown_event_stops_write_loop(tmp_path):
     shutdown_event = asyncio.Event()
     shutdown_event.set()  # Signal before the run starts
 
+    from tests.test_runner import _one_session_pair
     with patch("monarch_cli_sync.monarch.session.load_or_login", AsyncMock(return_value=mm)), \
          patch("monarch_cli_sync.monarch.transactions.fetch_amazon_transactions", AsyncMock(return_value=transactions)), \
-         patch("monarch_cli_sync.amazon.session.load_or_login", return_value=MagicMock()), \
+         patch("monarch_cli_sync.amazon.session.load_all_sessions", return_value=_one_session_pair()), \
          patch("monarch_cli_sync.amazon.orders.fetch_orders", return_value=orders):
         output = await run_sync(
             config,
@@ -303,9 +304,10 @@ async def test_run_sync_shutdown_mid_loop_gives_partial(tmp_path):
     config = MagicMock()
     config.amazon.request_delay_seconds = 0
 
+    from tests.test_runner import _one_session_pair
     with patch("monarch_cli_sync.monarch.session.load_or_login", AsyncMock(return_value=mm)), \
          patch("monarch_cli_sync.monarch.transactions.fetch_amazon_transactions", AsyncMock(return_value=transactions)), \
-         patch("monarch_cli_sync.amazon.session.load_or_login", return_value=MagicMock()), \
+         patch("monarch_cli_sync.amazon.session.load_all_sessions", return_value=_one_session_pair()), \
          patch("monarch_cli_sync.amazon.orders.fetch_orders", return_value=orders):
         output = await run_sync(
             config,
@@ -333,9 +335,10 @@ async def test_run_sync_no_shutdown_event_runs_fully(tmp_path):
     config = MagicMock()
     config.amazon.request_delay_seconds = 0
 
+    from tests.test_runner import _one_session_pair
     with patch("monarch_cli_sync.monarch.session.load_or_login", AsyncMock(return_value=mm)), \
          patch("monarch_cli_sync.monarch.transactions.fetch_amazon_transactions", AsyncMock(return_value=transactions)), \
-         patch("monarch_cli_sync.amazon.session.load_or_login", return_value=MagicMock()), \
+         patch("monarch_cli_sync.amazon.session.load_all_sessions", return_value=_one_session_pair()), \
          patch("monarch_cli_sync.amazon.orders.fetch_orders", return_value=orders):
         output = await run_sync(
             config,

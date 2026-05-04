@@ -32,6 +32,7 @@ class SyncResult:
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     message: str = ""
+    account_results: list[dict] = field(default_factory=list)  # per-account stats
 
     @property
     def exit_code(self) -> int:
@@ -55,6 +56,7 @@ class SyncResult:
             "errors": self.errors,
             "warnings": self.warnings,
             "message": self.message,
+            "account_results": self.account_results,
         }
 
     @classmethod
@@ -69,4 +71,5 @@ class SyncResult:
             errors=data.get("errors", []),
             warnings=data.get("warnings", []),
             message=data.get("message", ""),
+            account_results=data.get("account_results", []),
         )
