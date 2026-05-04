@@ -223,3 +223,82 @@ def test_amazon_order_str():
     s = str(order)
     assert "2024-03-15" in s
     assert "42.00" in s
+
+
+# ---------------------------------------------------------------------------
+# Phase 3: account_label field on AmazonOrder
+# ---------------------------------------------------------------------------
+
+def test_amazon_order_has_account_label_field():
+    """AmazonOrder has account_label field defaulting to empty string."""
+    order = AmazonOrder(
+        order_number="112-1234567-8901234",
+        amount=24.99,
+        date=date(2024, 3, 15),
+        items_desc="Widget",
+    )
+    assert hasattr(order, "account_label")
+    assert order.account_label == ""
+
+
+def test_amazon_order_account_label_can_be_set():
+    """account_label can be set explicitly."""
+    order = AmazonOrder(
+        order_number="112-1234567-8901234",
+        amount=24.99,
+        date=date(2024, 3, 15),
+        items_desc="Widget",
+        account_label="personal",
+    )
+    assert order.account_label == "personal"
+
+
+def test_fetch_orders_sets_account_label():
+    """fetch_orders with account_label='personal' sets .account_label on all results."""
+    raw = _make_raw_order(order_placed_date=date(2024, 3, 15))
+
+    with patch("monarch_cli_sync.amazon.orders.AmazonOrders") as MockAmazonOrders:
+        MockAmazonOrders.return_value.get_order_history.return_value = [raw]
+        results = fetch_orders(
+            _make_session(),
+            start_date=date(2024, 3, 1),
+            end_date=date(2024, 3, 31),
+            account_label="personal",
+        )
+
+    assert len(results) == 1
+    assert results[0].account_label == "personal"
+
+
+def test_fetch_orders_default_account_label_is_empty():
+    """Without account_label, orders have empty account_label."""
+    raw = _make_raw_order(order_placed_date=date(2024, 3, 15))
+
+    with patch("monarch_cli_sync.amazon.orders.AmazonOrders") as MockAmazonOrders:
+        MockAmazonOrders.return_value.get_order_history.return_value = [raw]
+        results = fetch_orders(
+            _make_session(),
+            start_date=date(2024, 3, 1),
+            end_date=date(2024, 3, 31),
+        )
+
+    assert results[0].account_label == ""
+
+
+def test_fetch_orders_multiple_results_all_get_account_label():
+    """All returned orders receive the same account_label."""
+    raws = [
+        _make_raw_order(order_number="A", order_placed_date=date(2024, 3, 10)),
+        _make_raw_order(order_number="B", order_placed_date=date(2024, 3, 20)),
+    ]
+
+    with patch("monarch_cli_sync.amazon.orders.AmazonOrders") as MockAmazonOrders:
+        MockAmazonOrders.return_value.get_order_history.return_value = raws
+        results = fetch_orders(
+            _make_session(),
+            start_date=date(2024, 3, 1),
+            end_date=date(2024, 3, 31),
+            account_label="business",
+        )
+
+    assert all(o.account_label == "business" for o in results)
