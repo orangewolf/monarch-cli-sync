@@ -25,6 +25,18 @@ err_console = Console(stderr=True)
 logger = logging.getLogger(__name__)
 
 
+def _parse_account_selector(raw: str | None) -> int | str | None:
+    """Convert --account option value to typed selector.
+
+    '1' → 1 (int index), 'personal' → 'personal' (str label), None → None.
+    """
+    if raw is None:
+        return None
+    if raw.isdigit():
+        return int(raw)
+    return raw
+
+
 def _setup_logging(verbose: bool, quiet: bool) -> None:
     level = logging.DEBUG if verbose else (logging.ERROR if quiet else logging.INFO)
     logging.basicConfig(
@@ -118,8 +130,10 @@ def auth() -> None:
 
 @auth.command("amazon")
 @click.option("--verbose", "-v", is_flag=True, default=False, help="Debug logging.")
+@click.option("--account", "account_selector", default=None, metavar="SELECTOR",
+              help="Account index (int) or label (str) to authenticate. Default: all.")
 @click.pass_context
-def auth_amazon(ctx: click.Context, verbose: bool) -> None:
+def auth_amazon(ctx: click.Context, verbose: bool, account_selector: str | None) -> None:
     """Interactive Amazon login — persists cookies for future headless runs."""
     quiet = (ctx.obj or {}).get("quiet", False)
     _setup_logging(verbose or (ctx.obj or {}).get("verbose", False), quiet)
@@ -131,11 +145,16 @@ def auth_amazon(ctx: click.Context, verbose: bool) -> None:
             "Amazon WAF auto-solve enabled (%s)", config.amazon.captcha_solver
         )
 
+    selector = _parse_account_selector(account_selector)
+
     try:
         from monarch_cli_sync.amazon.session import load_or_login as amazon_load_or_login
-        amazon_load_or_login(config, force=True)
-        if not quiet:
-            console.print("[green]Amazon cookies saved successfully.[/green]")
+        from monarch_cli_sync.amazon.session import _select_accounts
+        accounts = _select_accounts(config.amazon.accounts, selector)
+        for acct in accounts:
+            amazon_load_or_login(acct, force=True)
+            if not quiet:
+                console.print(f"[green]Amazon cookies saved for account '{acct.label}'.[/green]")
     except SystemExit:
         raise
     except Exception as exc:
@@ -185,6 +204,8 @@ def auth_monarch(ctx: click.Context, verbose: bool) -> None:
 @click.option("--year", default=None, type=int, help="Sync a full calendar year.")
 @click.option("--dry-run", is_flag=True, default=False, help="Match but do not write to Monarch.")
 @click.option("--force", is_flag=True, default=False, help="Overwrite existing notes.")
+@click.option("--account", "account_selector", default=None, metavar="SELECTOR",
+              help="Account index (int) or label (str) to sync. Default: all.")
 @click.option("--json", "output_json", is_flag=True, default=False, help="Output JSON SyncResult.")
 @click.option("--verbose", "-v", is_flag=True, default=False, help="Debug logging.")
 @click.option("--quiet", "-q", is_flag=True, default=False, help="Suppress non-error output.")
@@ -195,6 +216,7 @@ def sync(
     year: int | None,
     dry_run: bool,
     force: bool,
+    account_selector: str | None,
     output_json: bool,
     verbose: bool,
     quiet: bool,
@@ -232,6 +254,7 @@ def sync(
         return await run_sync(
             config, start_date, end_date,
             dry_run=dry_run, force=force,
+            account_selector=_parse_account_selector(account_selector),
             shutdown_event=shutdown_event,
         )
 
