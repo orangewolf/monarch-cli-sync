@@ -38,8 +38,14 @@ def test_doctor_runs_and_exits_nonzero_when_files_missing(runner):
     assert result.exit_code in (0, 1)  # 0 = all good, 1 = warnings
 
 
-def test_status_reports_no_changes_when_no_last_run(runner):
-    result = runner.invoke(main, ["status"], catch_exceptions=False)
+def test_status_reports_no_changes_when_no_last_run(runner, tmp_path):
+    # Patch LAST_RUN_FILE to a non-existent path so the real file on disk
+    # (left over from previous runs) doesn't interfere.
+    from unittest.mock import patch
+    missing = tmp_path / "last_run.json"
+    with patch("monarch_cli_sync.sync.runner.LAST_RUN_FILE", missing), \
+         patch("monarch_cli_sync.cli.LAST_RUN_FILE", missing):
+        result = runner.invoke(main, ["status"], catch_exceptions=False)
     assert result.exit_code == 0
     assert "no_changes" in result.output
 
@@ -56,6 +62,51 @@ def test_doctor_reports_captcha_solver_disabled(runner, monkeypatch):
     monkeypatch.setenv("AMAZON_CAPTCHA_API_KEY", "")
     result = runner.invoke(main, ["doctor"], catch_exceptions=False)
     assert "Amazon WAF auto-solve: disabled" in result.output
+
+
+# ---------------------------------------------------------------------------
+# Phase 7: doctor shows per-account cookie file status
+# ---------------------------------------------------------------------------
+
+def test_doctor_shows_per_account_cookie_status(runner, monkeypatch, tmp_path):
+    """doctor lists each account's cookie file status."""
+    monkeypatch.setenv("AMAZON_USERNAME_1", "a@example.com")
+    monkeypatch.setenv("AMAZON_PASSWORD_1", "pw1")
+    monkeypatch.setenv("AMAZON_LABEL_1", "personal")
+    monkeypatch.setenv("AMAZON_USERNAME_2", "b@example.com")
+    monkeypatch.setenv("AMAZON_PASSWORD_2", "pw2")
+    monkeypatch.setenv("AMAZON_LABEL_2", "business")
+
+    # Create cookie file for account 1 only.
+    cookie_file_1 = tmp_path / "amazon_cookies_personal.json"
+    cookie_file_1.write_text("{}")
+
+    from unittest.mock import patch
+    import monarch_cli_sync.amazon.session as session_mod
+    with patch.object(session_mod, "CONFIG_DIR", tmp_path):
+        result = runner.invoke(main, ["doctor"], catch_exceptions=False)
+
+    # Account 1 has cookies → green/OK line; account 2 doesn't → warning line.
+    assert "personal" in result.output
+    assert "business" in result.output
+
+
+def test_doctor_warns_when_account_missing_cookies(runner, monkeypatch, tmp_path):
+    """doctor emits a warning when an account has no cookie file."""
+    monkeypatch.setenv("AMAZON_USERNAME_1", "a@example.com")
+    monkeypatch.setenv("AMAZON_PASSWORD_1", "pw1")
+    monkeypatch.setenv("AMAZON_LABEL_1", "personal")
+
+    from unittest.mock import patch
+    import monarch_cli_sync.amazon.session as session_mod
+    with patch.object(session_mod, "CONFIG_DIR", tmp_path):
+        result = runner.invoke(main, ["doctor"], catch_exceptions=False)
+
+    # Should mention the account label
+    assert "personal" in result.output
+    # Should suggest running auth (Rich may word-wrap; collapse all whitespace before checking)
+    flat = " ".join(result.output.split())
+    assert "auth amazon" in flat
 
 
 # ---------------------------------------------------------------------------

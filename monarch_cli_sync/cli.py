@@ -70,9 +70,9 @@ def doctor(ctx: click.Context, verbose: bool) -> None:
     quiet = (ctx.obj or {}).get("quiet", False)
     _setup_logging(verbose or (ctx.obj or {}).get("verbose", False), quiet)
 
-    from monarch_cli_sync.config import CONFIG_FILE, CONFIG_DIR
+    from monarch_cli_sync.config import CONFIG_FILE
     from monarch_cli_sync.monarch.session import get_session_file
-    from monarch_cli_sync.amazon.session import get_cookie_file
+    from monarch_cli_sync.amazon.session import CONFIG_DIR as AMAZON_CONFIG_DIR
 
     warnings: list[str] = []
     errors: list[str] = []
@@ -96,18 +96,25 @@ def doctor(ctx: click.Context, verbose: bool) -> None:
         if not quiet:
             console.print(f"[yellow]![/yellow] Monarch session not found: {monarch_session}")
 
-    # 3. Amazon cookies
-    amazon_cookies = get_cookie_file()
-    if amazon_cookies.exists():
-        if not quiet:
-            console.print(f"[green]✓[/green] Amazon cookies found: {amazon_cookies}")
-    else:
-        warnings.append(f"Amazon cookies not found at {amazon_cookies}. Run 'auth amazon'.")
-        if not quiet:
-            console.print(f"[yellow]![/yellow] Amazon cookies not found: {amazon_cookies}")
+    # 3. Amazon cookies — one line per configured account
+    config = load_config()
+    for acct in config.amazon.accounts:
+        cookie_path = AMAZON_CONFIG_DIR / f"{acct.cookie_file_stem}.json"
+        if cookie_path.exists():
+            if not quiet:
+                console.print(
+                    f"[green]✓[/green] Amazon account '{acct.label}' — cookies: {cookie_path}"
+                )
+        else:
+            msg = (
+                f"Amazon account '{acct.label}' — no cookies found; "
+                f"run: monarch-cli-sync auth amazon --account {acct.label}"
+            )
+            warnings.append(msg)
+            if not quiet:
+                console.print(f"[yellow]![/yellow] {msg}")
 
     # 4. Optional Amazon WAF CAPTCHA solver
-    config = load_config()
     solver_status = config.amazon.captcha_solver or "disabled"
     if not quiet:
         console.print(f"Amazon WAF auto-solve: {solver_status}")
