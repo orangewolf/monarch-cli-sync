@@ -489,3 +489,78 @@ def test_pending_transaction_still_matched():
     )
     result = match(charges, [tx])
     assert len(result.matches) == 1
+
+
+# ---------------------------------------------------------------------------
+# Phase 4: account_label on AmazonCharge
+# ---------------------------------------------------------------------------
+
+def test_amazon_charge_has_account_label_field():
+    """AmazonCharge dataclass has account_label field defaulting to empty string."""
+    charge = AmazonCharge(
+        order_number="111-0000000-0000001",
+        amount=25.99,
+        date=date(2024, 3, 10),
+        items_desc="Widget",
+    )
+    assert hasattr(charge, "account_label")
+    assert charge.account_label == ""
+
+
+def test_amazon_charge_account_label_can_be_set():
+    """account_label can be set explicitly."""
+    charge = AmazonCharge(
+        order_number="111-0000000-0000001",
+        amount=25.99,
+        date=date(2024, 3, 10),
+        items_desc="Widget",
+        account_label="personal",
+    )
+    assert charge.account_label == "personal"
+
+
+def test_flatten_to_charges_preserves_account_label():
+    """flatten_to_charges copies order.account_label to the resulting charge."""
+    order = AmazonOrder(
+        order_number="111-0000000-0000001",
+        amount=25.99,
+        date=date(2024, 3, 10),
+        items_desc="Widget",
+        account_label="business",
+    )
+    charges = flatten_to_charges([order])
+    assert len(charges) == 1
+    assert charges[0].account_label == "business"
+
+
+def test_flatten_to_charges_empty_label_preserved():
+    """flatten_to_charges preserves empty account_label (no default override)."""
+    order = _order()  # account_label defaults to ""
+    charges = flatten_to_charges([order])
+    assert charges[0].account_label == ""
+
+
+def test_match_ignores_account_label_for_matching():
+    """Charges from different accounts with the same amount+date both match correctly."""
+    charges = [
+        AmazonCharge("111-acct1", 25.99, date(2024, 3, 10), "Widget", account_label="personal"),
+        AmazonCharge("111-acct2", 10.00, date(2024, 3, 12), "Cable",  account_label="business"),
+    ]
+    txs = [
+        _tx(tx_id="tx1", amount=-25.99, tx_date=date(2024, 3, 10)),
+        _tx(tx_id="tx2", amount=-10.00, tx_date=date(2024, 3, 12)),
+    ]
+    result = match(charges, txs)
+    assert len(result.matches) == 2
+    assert len(result.unmatched_charges) == 0
+    assert len(result.unmatched_transactions) == 0
+
+
+def test_match_result_preserves_account_label_on_matched_charge():
+    """The matched charge in MatchResult retains its account_label."""
+    charges = [
+        AmazonCharge("111-a", 25.99, date(2024, 3, 10), "Widget", account_label="personal"),
+    ]
+    txs = [_tx(tx_id="tx1", amount=-25.99, tx_date=date(2024, 3, 10))]
+    result = match(charges, txs)
+    assert result.matches[0].charge.account_label == "personal"

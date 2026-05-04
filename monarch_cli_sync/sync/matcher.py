@@ -20,6 +20,7 @@ class AmazonCharge:
     amount: float   # positive; negative = refund
     date: date
     items_desc: str
+    account_label: str = ""  # which Amazon account this came from (logging only)
 
 
 @dataclass
@@ -51,6 +52,7 @@ def flatten_to_charges(orders: list[AmazonOrder]) -> list[AmazonCharge]:
             amount=o.amount,
             date=o.date,
             items_desc=o.items_desc,
+            account_label=o.account_label,
         )
         for o in orders
     ]
