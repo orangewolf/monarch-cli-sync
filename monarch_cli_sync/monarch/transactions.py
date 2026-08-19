@@ -105,5 +105,13 @@ async def fetch_amazon_transactions(
     total = response.get("allTransactions", {}).get("totalCount", 0)
     logger.debug("Fetched %d / %d transactions.", len(results), total)
 
-    transactions = [_parse_transaction(r) for r in results]
+    parsed = [_parse_transaction(r) for r in results]
+
+    # Only process charges (debits). Monarch convention: debits are negative,
+    # so refunds/returns come back as positive amounts — exclude them.
+    transactions = [tx for tx in parsed if tx.amount < 0]
+    dropped = len(parsed) - len(transactions)
+    if dropped:
+        logger.debug("Excluded %d non-charge (refund/credit) transaction(s).", dropped)
+
     return transactions

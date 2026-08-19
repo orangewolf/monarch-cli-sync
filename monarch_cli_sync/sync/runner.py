@@ -89,7 +89,12 @@ async def run_sync(
             "[amazon:%s] Fetching orders %s → %s", acct.label, start_date, end_date
         )
         try:
-            orders = fetch_orders(
+            # fetch_orders is synchronous and internally calls asyncio.run()
+            # (via amazon-orders' _build_orders_async). Calling it directly from
+            # this running event loop raises "asyncio.run() cannot be called from
+            # a running event loop", so run it in a worker thread with its own loop.
+            orders = await asyncio.to_thread(
+                fetch_orders,
                 session,
                 start_date=start_date,
                 end_date=end_date,
@@ -121,7 +126,14 @@ async def run_sync(
                     "Interrupted by SIGTERM; some transactions may not have been updated."
                 )
                 break
-            ok = await update_transaction(mm, m.transaction.id, m.charge.order_number)
+            if not m.charge.items_desc.strip():
+                logger.info(
+                    "Skipping tx %s — no item description for order %s",
+                    m.transaction.id,
+                    m.charge.order_number,
+                )
+                continue
+            ok = await update_transaction(mm, m.transaction.id, m.charge.items_desc)
             if ok:
                 updated += 1
             else:

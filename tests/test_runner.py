@@ -23,12 +23,13 @@ def _make_order(
     order_number: str = "111-0000001-0000001",
     amount: float = 25.99,
     order_date: date = date(2024, 3, 10),
+    items_desc: str = "Widget A",
 ) -> AmazonOrder:
     return AmazonOrder(
         order_number=order_number,
         amount=amount,
         date=order_date,
-        items_desc="Widget A",
+        items_desc=items_desc,
     )
 
 
@@ -132,7 +133,7 @@ async def test_run_sync_dry_run_skipped_count(mock_config, tmp_path):
 
 @pytest.mark.asyncio
 async def test_run_sync_writes_match_notes(mock_config, tmp_path):
-    """Non-dry-run: update_transaction called for each match with order number."""
+    """Non-dry-run: update_transaction called for each match with the item description."""
     orders = [_make_order("111-0000001-0000001")]
     transactions = [_make_tx("tx1", amount=-25.99)]
     mm = MagicMock()
@@ -153,8 +154,32 @@ async def test_run_sync_writes_match_notes(mock_config, tmp_path):
     assert output.result.updated == 1
     assert output.result.status == SyncStatus.OK
     mm.update_transaction.assert_called_once_with(
-        transaction_id="tx1", notes="111-0000001-0000001"
+        transaction_id="tx1", notes="Widget A"
     )
+
+
+@pytest.mark.asyncio
+async def test_run_sync_skips_write_when_items_desc_empty(mock_config, tmp_path):
+    """A match whose charge has an empty item description is not written."""
+    orders = [_make_order("111-0000001-0000001", items_desc="")]
+    transactions = [_make_tx("tx1", amount=-25.99)]
+    mm = MagicMock()
+    mm.update_transaction = AsyncMock(return_value={})
+
+    last_run = tmp_path / "last_run.json"
+
+    with patch("monarch_cli_sync.monarch.session.load_or_login", AsyncMock(return_value=mm)), \
+         patch("monarch_cli_sync.monarch.transactions.fetch_amazon_transactions", AsyncMock(return_value=transactions)), \
+         patch("monarch_cli_sync.amazon.session.load_all_sessions", return_value=_one_session_pair()), \
+         patch("monarch_cli_sync.amazon.orders.fetch_orders", return_value=orders):
+        output = await run_sync(
+            mock_config, date(2024, 3, 1), date(2024, 3, 31),
+            dry_run=False, last_run_file=last_run,
+        )
+
+    assert output.result.matched == 1
+    assert output.result.updated == 0
+    mm.update_transaction.assert_not_called()
 
 
 @pytest.mark.asyncio

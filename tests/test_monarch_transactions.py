@@ -95,6 +95,31 @@ async def test_fetch_amazon_transactions_returns_list():
 
 
 @pytest.mark.asyncio
+async def test_fetch_amazon_transactions_excludes_refunds():
+    """Positive-amount (refund/credit) transactions are excluded; only charges remain."""
+    mm = MagicMock()
+    mm.get_transactions = AsyncMock(return_value={
+        "allTransactions": {
+            "totalCount": 3,
+            "results": [
+                RAW_TRANSACTION,  # amount -45.99 (charge)
+                {**RAW_TRANSACTION, "id": "refund", "amount": 30.00, "date": "2024-03-20"},
+                {**RAW_TRANSACTION, "id": "tx456", "amount": -12.00, "date": "2024-03-22"},
+            ],
+        }
+    })
+
+    txs = await fetch_amazon_transactions(
+        mm,
+        start_date=date(2024, 3, 1),
+        end_date=date(2024, 3, 31),
+    )
+
+    assert [tx.id for tx in txs] == ["tx123", "tx456"]
+    assert all(tx.amount < 0 for tx in txs)
+
+
+@pytest.mark.asyncio
 async def test_fetch_amazon_transactions_empty():
     mm = MagicMock()
     mm.get_transactions = AsyncMock(return_value={
