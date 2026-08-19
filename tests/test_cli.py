@@ -56,3 +56,102 @@ def test_doctor_reports_captcha_solver_disabled(runner, monkeypatch):
     monkeypatch.setenv("AMAZON_CAPTCHA_API_KEY", "")
     result = runner.invoke(main, ["doctor"], catch_exceptions=False)
     assert "Amazon WAF auto-solve: disabled" in result.output
+
+
+# ---------------------------------------------------------------------------
+# Phase 6: --account flag on sync and auth amazon
+# ---------------------------------------------------------------------------
+
+def test_sync_help_shows_account_flag(runner):
+    result = runner.invoke(main, ["sync", "--help"])
+    assert result.exit_code == 0
+    assert "--account" in result.output
+
+
+def test_auth_amazon_help_shows_account_flag(runner):
+    result = runner.invoke(main, ["auth", "amazon", "--help"])
+    assert result.exit_code == 0
+    assert "--account" in result.output
+
+
+def test_sync_account_flag_integer_passed_to_runner(runner, monkeypatch):
+    """sync --account 1 passes account_selector=1 (int) to run_sync."""
+    from unittest.mock import AsyncMock, MagicMock, patch
+    from monarch_cli_sync.status import SyncResult, SyncStatus
+    from monarch_cli_sync.sync.matcher import MatchResult
+    from monarch_cli_sync.sync.runner import RunOutput
+
+    captured = {}
+
+    async def fake_run_sync(config, start_date, end_date, dry_run, force,
+                            account_selector=None, last_run_file=None,
+                            shutdown_event=None):
+        captured["account_selector"] = account_selector
+        return RunOutput(
+            result=SyncResult(status=SyncStatus.OK, message="ok"),
+            orders=[],
+            transactions=[],
+            match_result=MatchResult(matches=[], unmatched_charges=[], unmatched_transactions=[]),
+        )
+
+    with patch("monarch_cli_sync.sync.runner.run_sync", fake_run_sync):
+        result = runner.invoke(main, ["sync", "--dry-run", "--account", "1"],
+                               catch_exceptions=False)
+
+    assert result.exit_code == 0
+    assert captured.get("account_selector") == 1  # int, not string
+
+
+def test_sync_account_flag_label_passed_to_runner(runner):
+    """sync --account personal passes account_selector='personal' (str)."""
+    from unittest.mock import patch
+    from monarch_cli_sync.status import SyncResult, SyncStatus
+    from monarch_cli_sync.sync.matcher import MatchResult
+    from monarch_cli_sync.sync.runner import RunOutput
+
+    captured = {}
+
+    async def fake_run_sync(config, start_date, end_date, dry_run, force,
+                            account_selector=None, last_run_file=None,
+                            shutdown_event=None):
+        captured["account_selector"] = account_selector
+        return RunOutput(
+            result=SyncResult(status=SyncStatus.OK, message="ok"),
+            orders=[],
+            transactions=[],
+            match_result=MatchResult(matches=[], unmatched_charges=[], unmatched_transactions=[]),
+        )
+
+    with patch("monarch_cli_sync.sync.runner.run_sync", fake_run_sync):
+        result = runner.invoke(main, ["sync", "--dry-run", "--account", "personal"],
+                               catch_exceptions=False)
+
+    assert result.exit_code == 0
+    assert captured.get("account_selector") == "personal"
+
+
+def test_sync_no_account_flag_passes_none(runner):
+    """sync without --account passes account_selector=None."""
+    from unittest.mock import patch
+    from monarch_cli_sync.status import SyncResult, SyncStatus
+    from monarch_cli_sync.sync.matcher import MatchResult
+    from monarch_cli_sync.sync.runner import RunOutput
+
+    captured = {}
+
+    async def fake_run_sync(config, start_date, end_date, dry_run, force,
+                            account_selector=None, last_run_file=None,
+                            shutdown_event=None):
+        captured["account_selector"] = account_selector
+        return RunOutput(
+            result=SyncResult(status=SyncStatus.OK, message="ok"),
+            orders=[],
+            transactions=[],
+            match_result=MatchResult(matches=[], unmatched_charges=[], unmatched_transactions=[]),
+        )
+
+    with patch("monarch_cli_sync.sync.runner.run_sync", fake_run_sync):
+        result = runner.invoke(main, ["sync", "--dry-run"], catch_exceptions=False)
+
+    assert result.exit_code == 0
+    assert captured.get("account_selector") is None
