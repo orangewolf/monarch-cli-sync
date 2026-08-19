@@ -59,6 +59,47 @@ password = "yourpassword"
 mfa_secret_key = "BASE32SECRETFROMMONARCH"
 ```
 
+### Multiple Amazon accounts
+
+If you need to sync orders from more than one Amazon account, use numbered environment variables starting at 1:
+
+```dotenv
+# Account 1
+AMAZON_USERNAME_1=personal@example.com
+AMAZON_PASSWORD_1=yourpassword
+AMAZON_OTP_SECRET_1=BASE32SECRETKEY
+AMAZON_LABEL_1=personal
+
+# Account 2
+AMAZON_USERNAME_2=work@example.com
+AMAZON_PASSWORD_2=otherpassword
+AMAZON_LABEL_2=business
+```
+
+The existing unnumbered `AMAZON_USERNAME` / `AMAZON_PASSWORD` variables continue to work as a single "account-1" (backward compat). You can mix both styles.
+
+**Authenticate each account:**
+
+```bash
+monarch-cli-sync auth amazon --account personal
+monarch-cli-sync auth amazon --account business
+```
+
+**Sync all accounts at once:**
+
+```bash
+monarch-cli-sync sync --dry-run
+```
+
+**Sync a specific account:**
+
+```bash
+monarch-cli-sync sync --account personal
+monarch-cli-sync sync --account 1   # by index
+```
+
+`doctor` reports cookie-file status for every configured account and tells you which ones need re-authentication.
+
 ### 4. Authenticate with Monarch
 
 ```bash
@@ -208,16 +249,19 @@ Why Python:
 ## Current CLI shape
 
 ```bash
-monarch-cli-sync auth monarch          # interactive Monarch login, saves session token
-monarch-cli-sync auth amazon           # interactive Amazon login, saves cookies
-monarch-cli-sync sync --dry-run        # fetch both sides and print tables; no writes
+monarch-cli-sync auth monarch                    # interactive Monarch login, saves session token
+monarch-cli-sync auth amazon                     # interactive Amazon login (all accounts)
+monarch-cli-sync auth amazon --account personal  # login for a specific account by label
+monarch-cli-sync auth amazon --account 1         # login for account by index
+monarch-cli-sync sync --dry-run                  # fetch both sides and print tables; no writes
 monarch-cli-sync sync --dry-run --year 2024
 monarch-cli-sync sync --dry-run --days 90
-monarch-cli-sync sync                  # full sync with writes back to Monarch
-monarch-cli-sync sync --force          # overwrite existing notes
-monarch-cli-sync status                # show last run result
-monarch-cli-sync doctor                # check config, auth files, and connectivity
-monarch-cli-sync --version             # print version
+monarch-cli-sync sync                            # full sync with writes back to Monarch
+monarch-cli-sync sync --force                    # overwrite existing notes
+monarch-cli-sync sync --account personal         # sync only a specific Amazon account
+monarch-cli-sync status                          # show last run result
+monarch-cli-sync doctor                          # check config, auth files, and connectivity
+monarch-cli-sync --version                       # print version
 ```
 
 ## What “working” should mean
@@ -349,12 +393,13 @@ Implemented:
 - packaging / editable install
 - config loading from `.env` and `~/.config/monarch-cli-sync/config.toml`
 - `auth monarch` — interactive login, session token persisted to disk
-- `auth amazon` — interactive login, cookies persisted to disk
+- `auth amazon` — interactive login, cookies persisted to disk; `--account` selects by index or label
 - `sync --dry-run` — fetches Amazon orders and Monarch transactions, prints both tables
-- `sync` — full end-to-end sync with write path back to Monarch
+- `sync` — full end-to-end sync with write path back to Monarch; `--account` restricts to one account
+- multiple Amazon accounts — numbered env vars (`AMAZON_USERNAME_N` etc.), gap detection, per-account cookie files; backward-compatible with single-account setup
 - matching engine — correlates Amazon orders to Monarch transactions by amount + date window
 - `status` — reads and prints the last run result from disk
-- `doctor` — checks config file, Monarch session, and Amazon cookie presence
+- `doctor` — checks config file, Monarch session, and per-account Amazon cookie presence
 - rate limiting — configurable `request_delay_seconds` between Amazon page fetches
 - retry logic — up to 3 retries with exponential backoff on Monarch API errors
 - SIGTERM handling — partial results saved if the process is interrupted mid-run
