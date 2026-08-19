@@ -20,6 +20,7 @@ class AmazonOrder:
     amount: float       # positive dollar amount, e.g. 24.99
     date: date
     items_desc: str     # short description of items in the order
+    account_label: str = ""  # which Amazon account fetched this order (for logging)
 
     def __str__(self) -> str:
         return (
@@ -59,6 +60,7 @@ def _normalize_order(raw) -> AmazonOrder | None:
         amount=amount,
         date=order_date,
         items_desc=items_desc,
+        # account_label is not known here; caller (fetch_orders) sets it
     )
 
 
@@ -69,6 +71,7 @@ def fetch_orders(
     start_date: date | None = None,
     end_date: date | None = None,
     request_delay_seconds: float = 1.0,
+    account_label: str = "",
 ) -> list[AmazonOrder]:
     """Fetch Amazon orders and return normalized AmazonOrder objects.
 
@@ -114,6 +117,7 @@ def fetch_orders(
         if normalized is None:
             continue
         if start_date <= normalized.date <= end_date:
+            normalized.account_label = account_label
             orders.append(normalized)
 
     logger.debug("Returning %d orders in date range.", len(orders))
