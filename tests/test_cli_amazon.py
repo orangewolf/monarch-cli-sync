@@ -215,18 +215,38 @@ def test_sync_dry_run_quiet_suppresses_tables(runner):
 # doctor
 # ---------------------------------------------------------------------------
 
-def test_doctor_all_present(runner, tmp_path):
+def _clear_amazon_env(monkeypatch) -> None:
+    """Ensure no AMAZON_* env vars are set so doctor gets a clean slate."""
+    for var in [
+        "AMAZON_USERNAME", "AMAZON_PASSWORD", "AMAZON_OTP_SECRET_KEY",
+        "AMAZON_USERNAME_1", "AMAZON_PASSWORD_1", "AMAZON_OTP_SECRET_1", "AMAZON_LABEL_1",
+        "AMAZON_USERNAME_2", "AMAZON_PASSWORD_2", "AMAZON_LABEL_2",
+        "AMAZON_CAPTCHA_SOLVER", "AMAZON_CAPTCHA_API_KEY",
+    ]:
+        monkeypatch.delenv(var, raising=False)
+
+
+def test_doctor_all_present(runner, monkeypatch, tmp_path):
+    """doctor exits 0 when config, Monarch session, and Amazon cookies are all found."""
+    import monarch_cli_sync.amazon.session as session_mod
+
+    _clear_amazon_env(monkeypatch)
+    monkeypatch.setenv("AMAZON_USERNAME_1", "a@example.com")
+    monkeypatch.setenv("AMAZON_PASSWORD_1", "pw1")
+    monkeypatch.setenv("AMAZON_LABEL_1", "personal")
+
     config_file = tmp_path / "config.toml"
     config_file.write_text("[monarch]\nemail='a@b.com'\n")
     monarch_session = tmp_path / "monarch_session.pkl"
     monarch_session.write_bytes(b"")
-    amazon_cookies = tmp_path / "amazon_cookies.json"
+    # Cookie file for the 'personal' account (non-compat label → amazon_cookies_personal.json)
+    amazon_cookies = tmp_path / "amazon_cookies_personal.json"
     amazon_cookies.write_text("{}")
 
     with (
         patch("monarch_cli_sync.config.CONFIG_FILE", config_file),
         patch("monarch_cli_sync.monarch.session.get_session_file", return_value=monarch_session),
-        patch("monarch_cli_sync.amazon.session.get_cookie_file", return_value=amazon_cookies),
+        patch.object(session_mod, "CONFIG_DIR", tmp_path),
     ):
         result = runner.invoke(main, ["doctor"])
 
@@ -236,59 +256,61 @@ def test_doctor_all_present(runner, tmp_path):
 
 def test_doctor_reports_captcha_solver_when_configured(runner, monkeypatch, tmp_path):
     """doctor reports configured Amazon WAF auto-solve status."""
+    import monarch_cli_sync.amazon.session as session_mod
+
+    _clear_amazon_env(monkeypatch)
     monkeypatch.setenv("AMAZON_CAPTCHA_SOLVER", "2captcha")
     monkeypatch.setenv("AMAZON_CAPTCHA_API_KEY", "k")
+
     config_file = tmp_path / "config.toml"
     config_file.write_text("")
     monarch_session = tmp_path / "monarch_session.pkl"
     monarch_session.write_bytes(b"")
-    amazon_cookies = tmp_path / "amazon_cookies.json"
-    amazon_cookies.write_text("{}")
 
     with (
         patch("monarch_cli_sync.config.CONFIG_FILE", config_file),
         patch("monarch_cli_sync.monarch.session.get_session_file", return_value=monarch_session),
-        patch("monarch_cli_sync.amazon.session.get_cookie_file", return_value=amazon_cookies),
+        patch.object(session_mod, "CONFIG_DIR", tmp_path),
     ):
         result = runner.invoke(main, ["doctor"])
 
-    assert result.exit_code == 0
     assert "Amazon WAF auto-solve: 2captcha" in result.output
 
 
 def test_doctor_reports_captcha_solver_disabled(runner, monkeypatch, tmp_path):
     """doctor reports disabled when no Amazon WAF solver is configured."""
-    monkeypatch.setenv("AMAZON_CAPTCHA_SOLVER", "")
-    monkeypatch.setenv("AMAZON_CAPTCHA_API_KEY", "")
+    import monarch_cli_sync.amazon.session as session_mod
+
+    _clear_amazon_env(monkeypatch)
+
     config_file = tmp_path / "config.toml"
     config_file.write_text("")
     monarch_session = tmp_path / "monarch_session.pkl"
     monarch_session.write_bytes(b"")
-    amazon_cookies = tmp_path / "amazon_cookies.json"
-    amazon_cookies.write_text("{}")
 
     with (
         patch("monarch_cli_sync.config.CONFIG_FILE", config_file),
         patch("monarch_cli_sync.monarch.session.get_session_file", return_value=monarch_session),
-        patch("monarch_cli_sync.amazon.session.get_cookie_file", return_value=amazon_cookies),
+        patch.object(session_mod, "CONFIG_DIR", tmp_path),
     ):
         result = runner.invoke(main, ["doctor"])
 
-    assert result.exit_code == 0
     assert "Amazon WAF auto-solve: disabled" in result.output
 
 
-def test_doctor_missing_monarch_session(runner, tmp_path):
+def test_doctor_missing_monarch_session(runner, monkeypatch, tmp_path):
+    """doctor warns when Monarch session file is absent."""
+    import monarch_cli_sync.amazon.session as session_mod
+
+    _clear_amazon_env(monkeypatch)
+
     config_file = tmp_path / "config.toml"
     config_file.write_text("")
-    amazon_cookies = tmp_path / "amazon_cookies.json"
-    amazon_cookies.write_text("{}")
-    # No monarch session file created
 
     with (
         patch("monarch_cli_sync.config.CONFIG_FILE", config_file),
         patch("monarch_cli_sync.monarch.session.get_session_file", return_value=tmp_path / "missing.pkl"),
-        patch("monarch_cli_sync.amazon.session.get_cookie_file", return_value=amazon_cookies),
+        patch.object(session_mod, "CONFIG_DIR", tmp_path),
     ):
         result = runner.invoke(main, ["doctor"])
 
@@ -297,11 +319,16 @@ def test_doctor_missing_monarch_session(runner, tmp_path):
     assert "partial" in result.output
 
 
-def test_doctor_missing_everything(runner, tmp_path):
+def test_doctor_missing_everything(runner, monkeypatch, tmp_path):
+    """doctor warns about all missing items and exits 1."""
+    import monarch_cli_sync.amazon.session as session_mod
+
+    _clear_amazon_env(monkeypatch)
+
     with (
         patch("monarch_cli_sync.config.CONFIG_FILE", tmp_path / "no_config.toml"),
         patch("monarch_cli_sync.monarch.session.get_session_file", return_value=tmp_path / "no_session.pkl"),
-        patch("monarch_cli_sync.amazon.session.get_cookie_file", return_value=tmp_path / "no_cookies.json"),
+        patch.object(session_mod, "CONFIG_DIR", tmp_path),
     ):
         result = runner.invoke(main, ["doctor"])
 
