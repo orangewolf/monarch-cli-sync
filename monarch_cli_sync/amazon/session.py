@@ -11,7 +11,7 @@ from amazonorders.conf import AmazonOrdersConfig
 from amazonorders.exception import AmazonOrdersAuthError
 from amazonorders.session import AmazonSession
 
-from monarch_cli_sync.config import AppConfig, CONFIG_DIR
+from monarch_cli_sync.config import AmazonAccountConfig, AppConfig, CONFIG_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -19,18 +19,31 @@ COOKIE_FILE = CONFIG_DIR / "amazon_cookies.json"
 
 
 def get_cookie_file(config_dir: Path | None = None) -> Path:
+    """Return the legacy single-account cookie file path (used by doctor command)."""
     base = config_dir or CONFIG_DIR
     return base / "amazon_cookies.json"
 
 
+def _select_accounts(
+    accounts: list[AmazonAccountConfig],
+    selector: str | int | None,
+) -> list[AmazonAccountConfig]:
+    """Filter accounts by index (int) or label (str), or return all if selector is None."""
+    if selector is None:
+        return accounts
+    if isinstance(selector, int):
+        return [a for a in accounts if a.index == selector]
+    return [a for a in accounts if a.label == selector]
+
+
 def load_or_login(
-    config: AppConfig,
+    account: AmazonAccountConfig,
     force: bool = False,
     cookie_file: Path | None = None,
     *,
     _session_cls=None,
 ) -> AmazonSession:
-    """Return an AmazonSession ready to make requests.
+    """Return an AmazonSession ready to make requests for the given account.
 
     If cookies are already stored and force=False, loads them and marks the
     session as authenticated without performing a new login.
@@ -40,48 +53,59 @@ def load_or_login(
 
     Raises SystemExit(2) on any auth failure.
     """
-    path = cookie_file or get_cookie_file()
+    # Resolve cookie file: explicit override > per-account stem > default
+    resolved_cookie_file = cookie_file or (CONFIG_DIR / f"{account.cookie_file_stem}.json")
+
     SessionCls = _session_cls or AmazonSession
 
-    path.parent.mkdir(parents=True, exist_ok=True)
+    resolved_cookie_file.parent.mkdir(parents=True, exist_ok=True)
 
-    amazon_config = AmazonOrdersConfig(data={"cookie_jar_path": str(path)})
+    amazon_config = AmazonOrdersConfig(data={"cookie_jar_path": str(resolved_cookie_file)})
 
     # Empty strings → None so we don't trip the upstream guard that fires when
     # captcha_solver is set without captcha_api_key.
-    captcha_solver = config.amazon.captcha_solver or None
-    captcha_api_key = config.amazon.captcha_api_key or None
+    captcha_solver = account.captcha_solver or None
+    captcha_api_key = account.captcha_api_key or None
 
-    if not force and path.exists():
+    if not force and resolved_cookie_file.exists():
         session = _build_session(
             SessionCls,
-            username=config.amazon.username or "",
-            password=config.amazon.password or "",
+            username=account.username or "",
+            password=account.password or "",
             amazon_config=amazon_config,
             captcha_solver=captcha_solver,
             captcha_api_key=captcha_api_key,
         )
         # Cookies loaded by constructor; mark authenticated so orders API works.
         session.is_authenticated = True
-        logger.debug("Loaded existing Amazon cookies from %s", path)
+        logger.debug(
+            "[amazon:%s] Loaded existing cookies from %s",
+            account.label,
+            resolved_cookie_file,
+        )
         return session
 
     # Need fresh login — only possible interactively.
     if not sys.stdin.isatty():
         logger.error(
-            "Amazon login required but running non-interactively. "
-            "Run 'monarch-cli-sync auth amazon' first to persist cookies."
+            "[amazon:%s] Login required but running non-interactively. "
+            "Run 'monarch-cli-sync auth amazon --account %s' first.",
+            account.label,
+            account.label,
         )
         sys.exit(2)
 
-    if not config.amazon.username or not config.amazon.password:
-        logger.error("AMAZON_USERNAME and AMAZON_PASSWORD must be set for login.")
+    if not account.username or not account.password:
+        logger.error(
+            "[amazon:%s] AMAZON_USERNAME and AMAZON_PASSWORD must be set for login.",
+            account.label,
+        )
         sys.exit(2)
 
     session = _build_session(
         SessionCls,
-        username=config.amazon.username,
-        password=config.amazon.password,
+        username=account.username,
+        password=account.password,
         amazon_config=amazon_config,
         captcha_solver=captcha_solver,
         captcha_api_key=captcha_api_key,
@@ -90,11 +114,45 @@ def load_or_login(
     try:
         session.login()
     except AmazonOrdersAuthError as exc:
-        logger.error("Amazon login failed: %s", exc)
+        logger.error("[amazon:%s] Login failed: %s", account.label, exc)
         sys.exit(2)
 
-    logger.debug("Amazon login successful, cookies saved to %s", path)
+    logger.debug(
+        "[amazon:%s] Login successful, cookies saved to %s",
+        account.label,
+        resolved_cookie_file,
+    )
     return session
+
+
+def load_all_sessions(
+    config: AppConfig,
+    account_selector: str | int | None = None,
+    force: bool = False,
+    *,
+    _session_cls=None,
+) -> list[tuple[AmazonAccountConfig, AmazonSession]]:
+    """Authenticate all configured accounts (or a selected subset).
+
+    Returns a list of (account_config, session) pairs for accounts that
+    authenticated successfully.  Logs a warning and continues when an account
+    fails auth non-interactively (SystemExit(2)).  Re-raises on any other
+    SystemExit code (e.g. 4 for errors).
+    """
+    accounts = _select_accounts(config.amazon.accounts, account_selector)
+    results: list[tuple[AmazonAccountConfig, AmazonSession]] = []
+    for acct in accounts:
+        try:
+            sess = load_or_login(acct, force=force, _session_cls=_session_cls)
+            results.append((acct, sess))
+        except SystemExit as exc:
+            if exc.code == 2:
+                logger.warning(
+                    "[amazon:%s] Auth failed, skipping account.", acct.label
+                )
+            else:
+                raise
+    return results
 
 
 def _build_session(
