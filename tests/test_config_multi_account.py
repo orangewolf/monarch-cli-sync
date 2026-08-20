@@ -17,7 +17,7 @@ from monarch_cli_sync.config import AmazonAccountConfig, AmazonConfig, AppConfig
 def _clear_amazon_env(monkeypatch):
     """Clear all single-account and numbered Amazon env vars."""
     for var in (
-        "AMAZON_USERNAME", "AMAZON_PASSWORD", "AMAZON_OTP_SECRET_KEY",
+        "AMAZON_USERNAME", "AMAZON_PASSWORD", "AMAZON_OTP_SECRET",
         "AMAZON_CAPTCHA_SOLVER", "AMAZON_CAPTCHA_API_KEY",
     ):
         monkeypatch.setenv(var, "")

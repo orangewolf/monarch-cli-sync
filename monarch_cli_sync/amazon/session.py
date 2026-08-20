@@ -9,13 +9,28 @@ from pathlib import Path
 
 from amazonorders.conf import AmazonOrdersConfig
 from amazonorders.exception import AmazonOrdersAuthError
-from amazonorders.session import AmazonSession
+from amazonorders.session import AmazonSession, IODefault
 
 from monarch_cli_sync.config import AmazonAccountConfig, AppConfig, CONFIG_DIR
 
 logger = logging.getLogger(__name__)
 
 COOKIE_FILE = CONFIG_DIR / "amazon_cookies.json"
+
+
+class _LabeledIO(IODefault):
+    """IO handler that prefixes every prompt with the account label.
+
+    When logging in multiple Amazon accounts, the upstream library's MFA prompt
+    ("Enter the one-time passcode from your preferred 2FA method") gives no clue
+    about which account it is asking for. Prefixing the label makes it clear.
+    """
+
+    def __init__(self, label: str) -> None:
+        self._label = label
+
+    def prompt(self, msg, type=None, **kwargs):  # noqa: A002 - matches upstream signature
+        return super().prompt(f"[amazon:{self._label}] {msg}", type=type, **kwargs)
 
 
 def get_cookie_file(config_dir: Path | None = None) -> Path:
@@ -75,6 +90,8 @@ def load_or_login(
             amazon_config=amazon_config,
             captcha_solver=captcha_solver,
             captcha_api_key=captcha_api_key,
+            otp_secret_key=account.otp_secret_key,
+            label=account.label,
         )
         # Cookies loaded by constructor; mark authenticated so orders API works.
         session.is_authenticated = True
@@ -109,6 +126,8 @@ def load_or_login(
         amazon_config=amazon_config,
         captcha_solver=captcha_solver,
         captcha_api_key=captcha_api_key,
+        otp_secret_key=account.otp_secret_key,
+        label=account.label,
     )
 
     try:
@@ -163,6 +182,8 @@ def _build_session(
     amazon_config: AmazonOrdersConfig,
     captcha_solver: str | None,
     captcha_api_key: str | None,
+    otp_secret_key: str = "",
+    label: str = "",
 ) -> AmazonSession:
     """Build an AmazonSession across amazonorders versions.
 
@@ -176,6 +197,10 @@ def _build_session(
         "config": amazon_config,
     }
     signature = inspect.signature(session_cls)
+    if "io" in signature.parameters:
+        kwargs["io"] = _LabeledIO(label)
+    if "otp_secret_key" in signature.parameters:
+        kwargs["otp_secret_key"] = otp_secret_key or None
     if "captcha_solver" in signature.parameters:
         kwargs["captcha_solver"] = captcha_solver
     if "captcha_api_key" in signature.parameters:

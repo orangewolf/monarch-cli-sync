@@ -106,7 +106,7 @@ class AmazonConfig(BaseModel):
     def apply_env_vars(cls, values: dict) -> dict:
         values.setdefault("username", os.environ.get("AMAZON_USERNAME", ""))
         values.setdefault("password", os.environ.get("AMAZON_PASSWORD", ""))
-        values.setdefault("otp_secret_key", os.environ.get("AMAZON_OTP_SECRET_KEY", ""))
+        values.setdefault("otp_secret_key", os.environ.get("AMAZON_OTP_SECRET", ""))
         values.setdefault("captcha_solver", os.environ.get("AMAZON_CAPTCHA_SOLVER", ""))
         values.setdefault("captcha_api_key", os.environ.get("AMAZON_CAPTCHA_API_KEY", ""))
         return values

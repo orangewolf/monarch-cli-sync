@@ -218,7 +218,7 @@ def test_sync_dry_run_quiet_suppresses_tables(runner):
 def _clear_amazon_env(monkeypatch) -> None:
     """Ensure no AMAZON_* env vars are set so doctor gets a clean slate."""
     for var in [
-        "AMAZON_USERNAME", "AMAZON_PASSWORD", "AMAZON_OTP_SECRET_KEY",
+        "AMAZON_USERNAME", "AMAZON_PASSWORD", "AMAZON_OTP_SECRET",
         "AMAZON_USERNAME_1", "AMAZON_PASSWORD_1", "AMAZON_OTP_SECRET_1", "AMAZON_LABEL_1",
         "AMAZON_USERNAME_2", "AMAZON_PASSWORD_2", "AMAZON_LABEL_2",
         "AMAZON_CAPTCHA_SOLVER", "AMAZON_CAPTCHA_API_KEY",

@@ -68,12 +68,14 @@ class FakeSession:
         config=None,
         captcha_solver=None,
         captcha_api_key=None,
+        otp_secret_key=None,
     ):
         self.username = username
         self.password = password
         self.config = config
         self.captcha_solver = captcha_solver
         self.captcha_api_key = captcha_api_key
+        self.otp_secret_key = otp_secret_key
         self.cookie_jar_path = (
             getattr(config, "cookie_jar_path", "") if config is not None else ""
         )
@@ -217,6 +219,19 @@ def test_interactive_login_success(tmp_path):
 
     assert session.login_called is True
     assert session.is_authenticated is True
+
+
+def test_interactive_login_forwards_otp_secret_key(tmp_path):
+    """The account's otp_secret_key must reach the session so the library can
+    auto-solve OTP instead of prompting interactively."""
+    cookie_file = tmp_path / "cookies.json"
+    account = _make_account(otp_secret_key="MYTOTPSECRET")
+
+    with patch("sys.stdin") as mock_stdin:
+        mock_stdin.isatty.return_value = True
+        session = load_or_login(account, cookie_file=cookie_file, _session_cls=FakeSession)
+
+    assert session.otp_secret_key == "MYTOTPSECRET"
 
 
 # ---------------------------------------------------------------------------

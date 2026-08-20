@@ -123,7 +123,7 @@ class SyncResult:
 
 ### Amazon
 
-- Credentials from env vars (`AMAZON_USERNAME`, `AMAZON_PASSWORD`, `AMAZON_OTP_SECRET_KEY`) or config file.
+- Credentials from env vars (`AMAZON_USERNAME`, `AMAZON_PASSWORD`, `AMAZON_OTP_SECRET`) or config file.
 - Cookie jar written to `~/.config/monarch-cli-sync/amazon_cookies.json`.
 - On each run, check `session.auth_cookies_stored()` before attempting full login. If cookies are stale and login fails with a CAPTCHA or MFA prompt, emit `auth_required` + exit code 2.
 - TOTP is handled automatically via `otp_secret_key`. Image CAPTCHAs require interactive intervention — if running unattended, fail cleanly with instructions.
@@ -369,7 +369,7 @@ When starting from zero, do these in order:
 [amazon]
 username = ""               # or AMAZON_USERNAME env var
 password = ""               # or AMAZON_PASSWORD env var
-otp_secret_key = ""         # TOTP base32 secret; or AMAZON_OTP_SECRET_KEY env var
+otp_secret_key = ""         # TOTP base32 secret; or AMAZON_OTP_SECRET env var
 request_delay_seconds = 1.0
 
 [monarch]
