@@ -74,6 +74,40 @@ def test_auth_amazon_unexpected_error(runner):
     assert "error" in result.output
 
 
+def test_auth_amazon_default_runs_non_manual(runner):
+    """Without --manual, load_or_login is called with manual=False."""
+    captured = {}
+
+    def fake_load_or_login(account, force=False, cookie_file=None, **kwargs):
+        captured["manual"] = kwargs.get("manual")
+        session = MagicMock()
+        session.is_authenticated = True
+        return session
+
+    with patch("monarch_cli_sync.amazon.session.load_or_login", fake_load_or_login):
+        result = runner.invoke(main, ["auth", "amazon"])
+
+    assert result.exit_code == 0
+    assert captured["manual"] is False
+
+
+def test_auth_amazon_manual_flag_forwards_manual_true(runner):
+    """--manual is forwarded through to load_or_login as manual=True."""
+    captured = {}
+
+    def fake_load_or_login(account, force=False, cookie_file=None, **kwargs):
+        captured["manual"] = kwargs.get("manual")
+        session = MagicMock()
+        session.is_authenticated = True
+        return session
+
+    with patch("monarch_cli_sync.amazon.session.load_or_login", fake_load_or_login):
+        result = runner.invoke(main, ["auth", "amazon", "--manual"])
+
+    assert result.exit_code == 0
+    assert captured["manual"] is True
+
+
 def test_auth_amazon_logs_solver_status_when_configured(runner, monkeypatch):
     """When captcha solver is configured, auth amazon emits an info log line."""
     monkeypatch.setenv("AMAZON_CAPTCHA_SOLVER", "2captcha")

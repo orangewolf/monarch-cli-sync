@@ -24,6 +24,8 @@ class _LabeledIO(IODefault):
     When logging in multiple Amazon accounts, the upstream library's MFA prompt
     ("Enter the one-time passcode from your preferred 2FA method") gives no clue
     about which account it is asking for. Prefixing the label makes it clear.
+
+    Used only in --manual mode, where a human is expected at the terminal.
     """
 
     def __init__(self, label: str) -> None:
@@ -31,6 +33,31 @@ class _LabeledIO(IODefault):
 
     def prompt(self, msg, type=None, **kwargs):  # noqa: A002 - matches upstream signature
         return super().prompt(f"[amazon:{self._label}] {msg}", type=type, **kwargs)
+
+
+class AmazonAuthPromptRequiredError(RuntimeError):
+    """Raised when the login flow needs interactive input outside --manual mode.
+
+    Login can hit prompts env vars don't cover (OTP device selection, CAPTCHA
+    without a solver, an OTP code without a TOTP secret). Non-interactive runs
+    must fail loudly here rather than block on stdin with nothing to answer it.
+    """
+
+
+class _NonInteractiveIO(IODefault):
+    """IO handler for headless auth: never blocks on input.
+
+    Raises instead of calling the default `input()`, which would otherwise
+    hang forever with no TTY attached.
+    """
+
+    def prompt(self, msg, type=None, **kwargs):  # noqa: A002 - matches upstream signature
+        raise AmazonAuthPromptRequiredError(
+            f"Amazon requested interactive input ({msg!r}) but auth is running "
+            "non-interactively. Set AMAZON_OTP_SECRET and/or AMAZON_CAPTCHA_SOLVER "
+            "(+ AMAZON_CAPTCHA_API_KEY) so it can be answered automatically, or "
+            "re-run with 'auth amazon --manual' to answer it yourself."
+        )
 
 
 def get_cookie_file(config_dir: Path | None = None) -> Path:
@@ -55,6 +82,7 @@ def load_or_login(
     account: AmazonAccountConfig,
     force: bool = False,
     cookie_file: Path | None = None,
+    manual: bool = False,
     *,
     _session_cls=None,
 ) -> AmazonSession:
@@ -63,8 +91,12 @@ def load_or_login(
     If cookies are already stored and force=False, loads them and marks the
     session as authenticated without performing a new login.
 
-    If cookies are missing or force=True, performs a fresh interactive login.
-    Requires a TTY; raises SystemExit(2) when running non-interactively.
+    If cookies are missing or force=True, performs a fresh login. By default
+    this runs non-interactively: credentials, OTP, and CAPTCHA solving must
+    come from account config/env vars, and any unresolved prompt raises
+    AmazonAuthPromptRequiredError (caught below and turned into SystemExit(2)).
+    Pass manual=True to allow real interactive prompts instead; that requires
+    a TTY and raises SystemExit(2) immediately if stdin isn't one.
 
     Raises SystemExit(2) on any auth failure.
     """
@@ -92,6 +124,7 @@ def load_or_login(
             captcha_api_key=captcha_api_key,
             otp_secret_key=account.otp_secret_key,
             label=account.label,
+            manual=manual,
         )
         # Cookies loaded by constructor; mark authenticated so orders API works.
         session.is_authenticated = True
@@ -102,12 +135,11 @@ def load_or_login(
         )
         return session
 
-    # Need fresh login — only possible interactively.
-    if not sys.stdin.isatty():
+    # Need fresh login. --manual expects a human at the terminal; anything
+    # else must resolve entirely from config/env vars.
+    if manual and not sys.stdin.isatty():
         logger.error(
-            "[amazon:%s] Login required but running non-interactively. "
-            "Run 'monarch-cli-sync auth amazon --account %s' first.",
-            account.label,
+            "[amazon:%s] --manual requires an interactive terminal, but stdin is not a TTY.",
             account.label,
         )
         sys.exit(2)
@@ -128,12 +160,16 @@ def load_or_login(
         captcha_api_key=captcha_api_key,
         otp_secret_key=account.otp_secret_key,
         label=account.label,
+        manual=manual,
     )
 
     try:
         session.login()
     except AmazonOrdersAuthError as exc:
         logger.error("[amazon:%s] Login failed: %s", account.label, exc)
+        sys.exit(2)
+    except AmazonAuthPromptRequiredError as exc:
+        logger.error("[amazon:%s] %s", account.label, exc)
         sys.exit(2)
 
     logger.debug(
@@ -148,6 +184,7 @@ def load_all_sessions(
     config: AppConfig,
     account_selector: str | int | None = None,
     force: bool = False,
+    manual: bool = False,
     *,
     _session_cls=None,
 ) -> list[tuple[AmazonAccountConfig, AmazonSession]]:
@@ -162,7 +199,7 @@ def load_all_sessions(
     results: list[tuple[AmazonAccountConfig, AmazonSession]] = []
     for acct in accounts:
         try:
-            sess = load_or_login(acct, force=force, _session_cls=_session_cls)
+            sess = load_or_login(acct, force=force, manual=manual, _session_cls=_session_cls)
             results.append((acct, sess))
         except SystemExit as exc:
             if exc.code == 2:
@@ -184,6 +221,7 @@ def _build_session(
     captcha_api_key: str | None,
     otp_secret_key: str = "",
     label: str = "",
+    manual: bool = False,
 ) -> AmazonSession:
     """Build an AmazonSession across amazonorders versions.
 
@@ -198,7 +236,7 @@ def _build_session(
     }
     signature = inspect.signature(session_cls)
     if "io" in signature.parameters:
-        kwargs["io"] = _LabeledIO(label)
+        kwargs["io"] = _LabeledIO(label) if manual else _NonInteractiveIO()
     if "otp_secret_key" in signature.parameters:
         kwargs["otp_secret_key"] = otp_secret_key or None
     if "captcha_solver" in signature.parameters:

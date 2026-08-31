@@ -139,9 +139,18 @@ def auth() -> None:
 @click.option("--verbose", "-v", is_flag=True, default=False, help="Debug logging.")
 @click.option("--account", "account_selector", default=None, metavar="SELECTOR",
               help="Account index (int) or label (str) to authenticate. Default: all.")
+@click.option("--manual", is_flag=True, default=False,
+              help="Answer login prompts (OTP device selection, OTP code, CAPTCHA) "
+                   "yourself at this terminal. Requires a TTY. Without this flag, "
+                   "auth runs non-interactively and fails loudly if a prompt can't "
+                   "be resolved from AMAZON_OTP_SECRET / AMAZON_CAPTCHA_SOLVER / "
+                   "AMAZON_CAPTCHA_API_KEY.")
 @click.pass_context
-def auth_amazon(ctx: click.Context, verbose: bool, account_selector: str | None) -> None:
-    """Interactive Amazon login — persists cookies for future headless runs."""
+def auth_amazon(ctx: click.Context, verbose: bool, account_selector: str | None, manual: bool) -> None:
+    """Amazon login — persists cookies for future headless runs.
+
+    Runs non-interactively by default. Pass --manual to answer prompts yourself.
+    """
     quiet = (ctx.obj or {}).get("quiet", False)
     _setup_logging(verbose or (ctx.obj or {}).get("verbose", False), quiet)
 
@@ -159,7 +168,7 @@ def auth_amazon(ctx: click.Context, verbose: bool, account_selector: str | None)
         from monarch_cli_sync.amazon.session import _select_accounts
         accounts = _select_accounts(config.amazon.accounts, selector)
         for acct in accounts:
-            amazon_load_or_login(acct, force=True)
+            amazon_load_or_login(acct, force=True, manual=manual)
             if not quiet:
                 console.print(f"[green]Amazon cookies saved for account '{acct.label}'.[/green]")
     except SystemExit:

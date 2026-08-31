@@ -69,6 +69,7 @@ class FakeSession:
         captcha_solver=None,
         captcha_api_key=None,
         otp_secret_key=None,
+        io=None,
     ):
         self.username = username
         self.password = password
@@ -76,6 +77,7 @@ class FakeSession:
         self.captcha_solver = captcha_solver
         self.captcha_api_key = captcha_api_key
         self.otp_secret_key = otp_secret_key
+        self.io = io
         self.cookie_jar_path = (
             getattr(config, "cookie_jar_path", "") if config is not None else ""
         )
@@ -152,19 +154,80 @@ def test_force_login_even_with_cookies(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# load_or_login — no cookies, non-interactive → exit 2
+# load_or_login — default (non-manual) mode never requires a TTY
 # ---------------------------------------------------------------------------
 
-def test_non_interactive_no_cookies_exits_2(tmp_path):
+def test_non_interactive_login_succeeds_without_tty(tmp_path):
+    """Default mode logs in fine with no TTY as long as no prompt is needed."""
+    cookie_file = tmp_path / "missing_cookies.json"
+    account = _make_account()
+
+    with patch("sys.stdin") as mock_stdin:
+        mock_stdin.isatty.return_value = False
+        session = load_or_login(account, cookie_file=cookie_file, _session_cls=FakeSession)
+
+    assert session.login_called is True
+    assert session.is_authenticated is True
+
+
+def test_non_interactive_prompt_required_exits_2(tmp_path):
+    """A prompt the env vars can't resolve fails loudly instead of blocking."""
+    cookie_file = tmp_path / "missing_cookies.json"
+    account = _make_account()
+
+    class PromptingSession(FakeSession):
+        def login(self):
+            self.io.prompt("Enter the one-time passcode from your preferred 2FA method")
+
+    with pytest.raises(SystemExit) as exc_info:
+        load_or_login(account, cookie_file=cookie_file, _session_cls=PromptingSession)
+
+    assert exc_info.value.code == 2
+
+
+def test_default_mode_uses_non_interactive_io(tmp_path):
+    from monarch_cli_sync.amazon.session import _NonInteractiveIO
+
+    cookie_file = tmp_path / "missing_cookies.json"
+    account = _make_account()
+
+    session = load_or_login(account, cookie_file=cookie_file, _session_cls=FakeSession)
+
+    assert isinstance(session.io, _NonInteractiveIO)
+
+
+# ---------------------------------------------------------------------------
+# load_or_login — manual=True requires a real TTY
+# ---------------------------------------------------------------------------
+
+def test_manual_mode_without_tty_exits_2(tmp_path):
     cookie_file = tmp_path / "missing_cookies.json"
     account = _make_account()
 
     with patch("sys.stdin") as mock_stdin:
         mock_stdin.isatty.return_value = False
         with pytest.raises(SystemExit) as exc_info:
-            load_or_login(account, cookie_file=cookie_file, _session_cls=FakeSession)
+            load_or_login(
+                account, manual=True, cookie_file=cookie_file, _session_cls=FakeSession
+            )
 
     assert exc_info.value.code == 2
+
+
+def test_manual_mode_with_tty_uses_labeled_io(tmp_path):
+    from monarch_cli_sync.amazon.session import _LabeledIO
+
+    cookie_file = tmp_path / "missing_cookies.json"
+    account = _make_account()
+
+    with patch("sys.stdin") as mock_stdin:
+        mock_stdin.isatty.return_value = True
+        session = load_or_login(
+            account, manual=True, cookie_file=cookie_file, _session_cls=FakeSession
+        )
+
+    assert isinstance(session.io, _LabeledIO)
+    assert session.login_called is True
 
 
 # ---------------------------------------------------------------------------
@@ -433,14 +496,20 @@ def test_load_all_sessions_skips_failed_auth_and_warns(monkeypatch, tmp_path, ca
     import monarch_cli_sync.amazon.session as session_mod
 
     config = _make_two_account_config(monkeypatch)
-    # Account 1 has cookies (compat stem); account 2 does not → non-interactive exit 2
+    # Account 1 has cookies (compat stem); account 2 does not, and its login
+    # hits a prompt env vars can't resolve → non-interactive exit 2.
     (tmp_path / "amazon_cookies.json").write_text(json.dumps({}))
 
+    class ConditionalPromptSession(FakeSession):
+        def login(self):
+            if self.username == "b@example.com":
+                self.io.prompt("Enter the one-time passcode from your preferred 2FA method")
+            else:
+                super().login()
+
     with patch.object(session_mod, "CONFIG_DIR", tmp_path), \
-         patch("sys.stdin") as mock_stdin, \
          caplog.at_level(logging.WARNING, logger="monarch_cli_sync.amazon.session"):
-        mock_stdin.isatty.return_value = False
-        results = load_all_sessions(config, _session_cls=FakeSession)
+        results = load_all_sessions(config, _session_cls=ConditionalPromptSession)
 
     assert len(results) == 1
     assert results[0][0].username == "a@example.com"
@@ -453,12 +522,14 @@ def test_load_all_sessions_empty_when_all_fail(monkeypatch, tmp_path, caplog):
     import monarch_cli_sync.amazon.session as session_mod
 
     config = _make_two_account_config(monkeypatch)
-    # No cookie files → both accounts fail non-interactively
+    # No cookie files, and login always hits an unresolvable prompt.
+
+    class AlwaysPromptSession(FakeSession):
+        def login(self):
+            self.io.prompt("Enter the one-time passcode from your preferred 2FA method")
 
     with patch.object(session_mod, "CONFIG_DIR", tmp_path), \
-         patch("sys.stdin") as mock_stdin, \
          caplog.at_level(logging.WARNING, logger="monarch_cli_sync.amazon.session"):
-        mock_stdin.isatty.return_value = False
-        results = load_all_sessions(config, _session_cls=FakeSession)
+        results = load_all_sessions(config, _session_cls=AlwaysPromptSession)
 
     assert results == []
